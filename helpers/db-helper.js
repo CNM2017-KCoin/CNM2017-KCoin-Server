@@ -1,7 +1,7 @@
-var Mysql = require('node-mysql-helper');
-var Q = require('q');
+let Mysql = require('node-mysql-helper');
+let Q = require('q');
 
-var mysqlOptions = {
+let mysqlOptions = {
   host: '127.0.0.1',
   user: 'root',
   password: '',
