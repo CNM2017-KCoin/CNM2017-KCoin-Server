@@ -38,7 +38,7 @@ exports.login = function (req, res) {
       let data = {
         'status': '500',
         'data': {
-          'error': error
+          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
         }
       };
       res.send(data);
