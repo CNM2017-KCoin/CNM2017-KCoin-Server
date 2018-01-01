@@ -14,6 +14,7 @@
     "node-sass-middleware": "0.9.8",
     "serve-favicon": "~2.4.5",
     "twig": "~0.10.3",
+    "cors": "^2.8.4",
     "crypto": "0.0.3",
     "q": "^1.5.1",
     "node-mysql-helper": "^0.6.7"
