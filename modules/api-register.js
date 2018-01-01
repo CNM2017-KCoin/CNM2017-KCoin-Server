@@ -44,13 +44,35 @@ exports.register = function (req, res) {
             ]
           ).then(
             function (userInfo) {
-              let data = {
-                'status': '200',
-                'data': {
-                  'report': 'Đăng ký thành công...!'
-                }
-              };
-              res.send(data);
+              if (userInfo.insertId > 0) {
+                dbHelper.dbLoadSql(
+                  `INSERT INTO tb_wallet (
+                  user_id)
+                  VALUES (?)`,
+                  [
+                    userInfo.insertId
+                  ]
+                ).then(function (wallet) {
+                  if (wallet.insertId > 0) {
+                    let data = {
+                      'status': '200',
+                      'data': {
+                        'report': 'Đăng ký thành công...!'
+                      }
+                    };
+                    res.send(data);
+                  }
+                  else {
+                    let data = {
+                      'status': '500',
+                      'data': {
+                        'error': 'Đăng ký thất bại...!'
+                      }
+                    };
+                    res.send(data);
+                  }
+                });
+              }
             }
           ).catch(function (error) {
               res.send(error);
