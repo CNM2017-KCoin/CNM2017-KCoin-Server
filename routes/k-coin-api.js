@@ -1,12 +1,11 @@
-var express = require('express');
-var coreApiRoute = express.Router();
+let express = require('express');
+let coreApiRoute = express.Router();
+
+let apiTest = require('../modules/api-test');
 
 coreApiRoute.get('/test', function(req, res) {
-  let data = {
-    'status': '1',
-    'error': "test success",
-    'data': []
-  };
-  res.send(data);
+  apiTest.test(req, res);
 });
+
+
 module.exports = coreApiRoute;
