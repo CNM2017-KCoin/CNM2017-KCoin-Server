@@ -5,7 +5,7 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('server.api:server');
+var debug = require('debug')('cnm2017-kcoin-server:server');
 var http = require('http');
 
 /**
