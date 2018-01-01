@@ -2,10 +2,10 @@ let Mysql = require('node-mysql-helper');
 let Q = require('q');
 
 let mysqlOptions = {
-  host: '127.0.0.1',
-  user: 'root',
-  password: '',
-  database: 'db_kcoin
+  host: 'sql12.freemysqlhosting.net',
+  user: 'sql12213542',
+  password: 'UXjQaxJ2xf',
+  database: 'sql12213542',
   socketPath: false,
   connectionLimit: 5
 };
