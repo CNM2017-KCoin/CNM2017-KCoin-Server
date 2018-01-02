@@ -1,4 +1,5 @@
 let dbHelper = require('../helpers/db-helper');
+let utils = require('../helpers/utils.js');
 
 exports.register = function (req, res) {
   let params = req.body || {};
@@ -33,14 +34,21 @@ exports.register = function (req, res) {
           };
           res.send(data);
         } else {
+          var info = utils.generateAddress();
           dbHelper.dbLoadSql(
             `INSERT INTO tb_login (
             email, 
-            password)
-            VALUES (?, ?)`,
+            password,
+            public_key,
+            private_key,
+            address)
+            VALUES (?, ?, ?, ?, ?)`,
             [
               email,
-              password
+              password,
+              info.publicKey,
+              info.privateKey,
+              info.address
             ]
           ).then(
             function (userInfo) {
