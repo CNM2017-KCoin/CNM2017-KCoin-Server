@@ -68,7 +68,6 @@ exports.send = function (req, res) {
     ]
   ).then(
     function (userInfo) {
-      let data = [];
       if (userInfo[0]['id'] > 0) {
         dbHelper.dbLoadSql(
           `SELECT id, ref_hash, ref_index, amount 
@@ -94,12 +93,13 @@ exports.send = function (req, res) {
               }
             }
             if (countAmount < amount) {
-              data = {
+              let data = {
                 'status': '500',
                 'data': {
                   'error': 'Số dư của tài khoản không đủ để thực hiện giao dịch này!'
                 }
               };
+              res.send(data);
             } else {
               let inputList = [];
               for (let i = 0; i < listPackage.length; i++) {
@@ -141,28 +141,41 @@ exports.send = function (req, res) {
                 "address": userInfo[0].address
               };
               sign(transaction, key);
-              console.log(transaction);
+              // console.log(transaction);
               axios.post('https://api.kcoin.club/transactions', transaction)
                 .then(function (response) {
-                  console.log('1111111111');
-                  console.log(response);
+                  console.log(response.data);
+                  let data = {
+                    'status': '200',
+                    'data': {
+                      'report': 'Giao dịch thành công!'
+                    }
+                  };
+                  res.send(data);
                 })
                 .catch(function (error) {
-                  console.log(error);
+                  // console.log(error);
+                  let data = {
+                    'status': '500',
+                    'data': {
+                      'error': 'Giao dịch thất bại!'
+                    }
+                  };
+                  res.send(data);
                 });
               // console.log(JSON.stringify(transaction));
             }
           }
         );
       } else {
-        data = {
+        let data = {
           'status': '500',
           'data': {
             'error': 'Giao dịch thất bại!'
           }
         };
+        res.send(data);
       }
-      res.send(data);
     }
   ).catch(function (error) {
       let data = {
