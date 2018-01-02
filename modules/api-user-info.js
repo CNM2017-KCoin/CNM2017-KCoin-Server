@@ -5,7 +5,7 @@ exports.getInfo = function (req, res) {
   let email = params['email'] || '';
   console.log(params);
   dbHelper.dbLoadSql(
-    `SELECT id 
+    `SELECT id, address
     FROM tb_login l
     WHERE l.email = ?`,
     [
@@ -26,7 +26,8 @@ exports.getInfo = function (req, res) {
           function (walletInfo) {
             console.log(walletInfo);
             if (walletInfo[0].id > 0) {
-              console.log('111111');
+              console.log('111');
+              console.log(userInfo[0].address);
               let data = {
                 'status': '200',
                 'data': {
