@@ -112,7 +112,6 @@ exports.send = function (req, res) {
               }
               let outputList = [];
               if (countAmount > amount) {
-                console.log('1121212');
                 outputList = [
                   {
                     "value": parseInt(countAmount - amount),
@@ -124,8 +123,6 @@ exports.send = function (req, res) {
                   }
                 ];
               } else {
-
-                console.log('1112221212');
                 outputList = [
                   {
                     "value": amount,
@@ -144,7 +141,16 @@ exports.send = function (req, res) {
                 "address": userInfo[0].address
               };
               sign(transaction, key);
-              console.log(JSON.stringify(transaction));
+              console.log(transaction);
+              axios.post('https://api.kcoin.club/transactions', transaction)
+                .then(function (response) {
+                  console.log('1111111111');
+                  console.log(response);
+                })
+                .catch(function (error) {
+                  console.log(error);
+                });
+              // console.log(JSON.stringify(transaction));
             }
           }
         );
