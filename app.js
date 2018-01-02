@@ -1,17 +1,18 @@
-var express = require('express');
-var path = require('path');
-// var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var sassMiddleware = require('node-sass-middleware');
+let express = require('express');
+let path = require('path');
+// let favicon = require('serve-favicon');
+let logger = require('morgan');
+let cookieParser = require('cookie-parser');
+let bodyParser = require('body-parser');
+let sassMiddleware = require('node-sass-middleware');
 
-var kCoinApi = require('./routes/k-coin-api');
+let kCoinApi = require('./routes/k-coin-api');
 
 
-var app = express();
-var cors = require('cors');
-
+let app = express();
+let cors = require('cors');
+let mwWebSocket = require('./modules/api-socket');
+app.use(mwWebSocket.Listen);
 app.use(cors({credentials: true}));
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -35,7 +36,7 @@ app.use('/api', kCoinApi);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  var err = new Error('Not Found');
+  let err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
