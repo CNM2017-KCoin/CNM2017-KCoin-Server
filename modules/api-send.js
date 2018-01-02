@@ -1,5 +1,6 @@
 let dbHelper = require('../helpers/db-helper');
 let utils = require('../helpers/utils.js');
+let axios = require('axios');
 
 // Convert a transaction to binary format for hashing or checking the size
 let toBinary = function (transaction, withoutUnlockScript) {
@@ -81,13 +82,16 @@ exports.send = function (req, res) {
           function (inputPackage) {
             let countAmount = 0;
             let listPackage = [];
-            for (let i = 0; i < inputPackage.length || countAmount <= amount; i++) {
+            for (let i = 0; i < inputPackage.length; i++) {
               let package = {
                 'ref_hash': inputPackage[i].ref_hash,
                 'ref_index': inputPackage[i].ref_index,
               };
               listPackage.push(package);
               countAmount += inputPackage[i].amount;
+              if (countAmount >= amount) {
+                break;
+              }
             }
             if (countAmount < amount) {
               data = {
@@ -108,6 +112,7 @@ exports.send = function (req, res) {
               }
               let outputList = [];
               if (countAmount > amount) {
+                console.log('1121212');
                 outputList = [
                   {
                     "value": parseInt(countAmount - amount),
@@ -119,10 +124,12 @@ exports.send = function (req, res) {
                   }
                 ];
               } else {
+
+                console.log('1112221212');
                 outputList = [
                   {
                     "value": amount,
-                    "lockScript": '"ADD ' + address + '"'
+                    "lockScript": 'ADD ' + receiver_address
                   }
                 ];
               }
@@ -137,7 +144,6 @@ exports.send = function (req, res) {
                 "address": userInfo[0].address
               };
               sign(transaction, key);
-              console.log('1111111');
               console.log(JSON.stringify(transaction));
             }
           }
