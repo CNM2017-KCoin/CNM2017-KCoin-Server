@@ -6,6 +6,7 @@ let apiRegister = require('../modules/api-register');
 let apiLogin = require('../modules/api-login');
 let apiUserInfo = require('../modules/api-user-info');
 let apiSend = require('../modules/api-send');
+let apiPostTest = require('../modules/api-post-test');
 
 const WebSocket = require('ws');
 
@@ -35,4 +36,8 @@ coreApiRoute.post('/send', function (req, res) {
   apiSend.send(req, res);
 });
 
+// Api post test
+coreApiRoute.post('/post-test', function (req, res) {
+  apiPostTest.postTest(req, res);
+});
 module.exports = coreApiRoute;
