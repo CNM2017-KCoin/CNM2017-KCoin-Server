@@ -49,8 +49,6 @@ exports.getInfo = function (req, res) {
             }
           }
         )
-
-        
       } else {
         let data = {
           'status': '500',
