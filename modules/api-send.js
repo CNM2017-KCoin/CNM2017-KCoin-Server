@@ -85,6 +85,7 @@ exports.send = function (req, res) {
               let package = {
                 'ref_hash': inputPackage[i].ref_hash,
                 'ref_index': inputPackage[i].ref_index,
+                'amount': inputPackage[i].amount,
               };
               listPackage.push(package);
               countAmount += inputPackage[i].amount;
@@ -142,27 +143,130 @@ exports.send = function (req, res) {
               };
               sign(transaction, key);
               // console.log(transaction);
-              axios.post('https://api.kcoin.club/transactions', transaction)
-                .then(function (response) {
-                  console.log(response.data);
-                  let data = {
-                    'status': '200',
-                    'data': {
-                      'report': 'Giao dịch thành công!'
+              let data = {
+                "hash": '7660b5e452581ed48456de1da48ae9f7584ca6401aa0d10c422c55ed3795b8f8',
+                "inputs":
+                  [{
+                    "unlockScript": "PUB 2d2d2d2d2d424547494e205055424c4943204b45592d2d2d2d2d0a4d4947664d413047435371475349623344514542415155414134474e4144434269514b4267514336e6d6f766247374941760a55523475463253315059647a6b4a6d626f39536c6b52745531647a654c716276753375695269385a3655536e4f41426e67454c754433647a684c4c626c4763630a6d59725944456b7950675152454f69312b514944415141420a2d2d2d2d2d454e44205055424c4943204b45592d2d2d2d2d0a SIG a44894fdf273e95ed500ad92958e7745822eee4e32a5fb50073d16580ca497525f3353d4ffdbe15d55c7f9a560669b6fca497293fe8705f0653a4f7031ec6a35c7b8feb8a9e6f57e90ce6437d5d6e7cdaf1b803348dd67f135e3a9563796a2a6e47052450e6440b26a157c5c8a19dd2c49532205967a5bdc0ab024e72736c784",
+                    "referencedOutputHash": "7c577232e785c236c0e2f244b64fdd5682e34391d98ec8c435c4afe1d5c6c987",
+                    "referencedOutputIndex": 1
+                  }],
+                "outputs":
+                  [{
+                    "value": 9,
+                    "lockScript": "ADD 58eb4b50f39d98831adaefee010d16477df8e7c73d7ecf8a519f90b3bb75dde4"
+                  },
+                    {
+                      "value": 1,
+                      "lockScript": "ADD 72a918b9d0d21ec983f27afb721d839c967599b847e061cfb540938e7dcfd4e9"
+                    }],
+                "version": 1
+              };
+              if (data.hash != null) {
+                dbHelper.dbLoadSql(
+                  `INSERT INTO tb_transaction (
+                   ref_hash,
+                   send_amount)
+                   VALUES (?, ?)`,
+                  [
+                    data.hash,
+                    amount
+                  ]
+                ).then(
+                  function (transactionInfo) {
+                    if (transactionInfo.insertId > 0) {
+                      for (let i = 0; i < data.inputs.length; i++) {
+                        let refHash = data.inputs[i].referencedOutputHash;
+                        let refIndex = data.inputs[i].referencedOutputIndex;
+
+                        function isPackage(inputs) {
+                          return (inputs.ref_hash == refHash) && (inputs.ref_index == refIndex);
+                        }
+
+                        let packageTemp = listPackage.find(isPackage);
+                        dbHelper.dbLoadSql(
+                          `INSERT INTO tb_transaction_input (
+                           transaction_id,
+                           user_id,
+                           address,
+                           ref_hash,
+                           ref_index,
+                           amount)
+                           VALUES (?, ?, ?, ?, ?, ?)`,
+                          [
+                            transactionInfo.insertId,
+                            userInfo[0]['id'],
+                            userInfo[0]['address'],
+                            data.inputs[i].referencedOutputHash,
+                            data.inputs[i].referencedOutputIndex,
+                            packageTemp.amount
+                          ]
+                        ).then(function (transactionInputInfo) {
+                          // do nothing
+                        });
+                      }
+
+                      for (let i = 0; i < data.outputs.length; i++) {
+                        dbHelper.dbLoadSql(
+                          `SELECT id, address
+                          FROM tb_login l
+                          WHERE l.address = ?`,
+                          [
+                            data.outputs[i].lockScript.substr(4,data.outputs[i].lockScript.length)
+                          ]
+                        ).then(
+                          function (userInfo2) {
+                            if (userInfo2[0]['id'] > 0) {
+                              dbHelper.dbLoadSql(
+                                `INSERT INTO tb_transaction_output (
+                                 transaction_id,
+                                 user_id,
+                                 address,
+                                 ref_index,
+                                 amount)
+                                 VALUES (?, ?, ?, ?, ?, ?)`,
+                                [
+                                  transactionInfo.insertId,
+                                  userInfo2[0]['id'],
+                                  userInfo2[0]['address'],
+                                  i,
+                                  data.outputs[i].value
+                                ]
+                              ).then(function (transactionInputInfo) {
+                                // do nothing
+                              });
+                            }
+                          }
+                        );
+                      }
                     }
+                  }
+                ).catch(function (error) {
+                    res.send(error);
+                  }
+                );
+              }
+              /*axios.post('https://api.kcoin.club/transactions', transaction)
+                .then(function (response) {
+                  console.log('111111111111111111111111111111111');
+                  console.log(response.data);
+                  /!*let data = {
+                    'status': '200',
+                    'data': response,
                   };
-                  res.send(data);
+                  res.send(response);*!/
                 })
                 .catch(function (error) {
-                  // console.log(error);
-                  let data = {
+                  console.log('2222222222');
+                  console.log(error);
+                  /!*let data = {
                     'status': '500',
                     'data': {
-                      'error': 'Giao dịch thất bại!'
+                      'error': 'Giao dịch thất bại!!!'
                     }
                   };
-                  res.send(data);
-                });
+                  res.send(data);*!/
+                });*/
               // console.log(JSON.stringify(transaction));
             }
           }
@@ -171,7 +275,7 @@ exports.send = function (req, res) {
         let data = {
           'status': '500',
           'data': {
-            'error': 'Giao dịch thất bại!'
+            'error': 'Giao dịch thất bại...!'
           }
         };
         res.send(data);
