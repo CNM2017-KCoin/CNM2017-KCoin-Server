@@ -176,6 +176,7 @@ exports.postTest = function (req, res) {
                 ).then(
                   function (transactionInfo) {
                     if (transactionInfo.insertId > 0) {
+                      // Insert data to transaction input
                       for (let i = 0; i < data.inputs.length; i++) {
                         let refHash = data.inputs[i].referencedOutputHash;
                         let refIndex = data.inputs[i].referencedOutputIndex;
@@ -206,14 +207,14 @@ exports.postTest = function (req, res) {
                           // do nothing
                         });
                       }
-
+                      // Insert data to transaction output
                       for (let i = 0; i < data.outputs.length; i++) {
                         dbHelper.dbLoadSql(
                           `SELECT id, address
                           FROM tb_login l
                           WHERE l.address = ?`,
                           [
-                            data.outputs[i].lockScript.substr(4,data.outputs[i].lockScript.length)
+                            data.outputs[i].lockScript.substr(4, data.outputs[i].lockScript.length)
                           ]
                         ).then(
                           function (userInfo2) {
@@ -241,6 +242,38 @@ exports.postTest = function (req, res) {
                           }
                         );
                       }
+                      // Update available amount
+                      dbHelper.dbLoadSql(
+                        `SELECT actual_amount 
+                        FROM tb_wallet w
+                        WHERE w.user_id = ?`,
+                        [
+                          userInfo[0]['id']
+                        ]
+                      ).then(
+                        function (walletInfo) {
+                          dbHelper.dbLoadSql(
+                            `UPDATE tb_wallet
+                            SET available_amount = ?
+                            WHERE user_id = ?`,
+                            [
+                              walletInfo[0]['actual_amount'] - amount,
+                              userInfo[0]['id']
+                            ]
+                          ).then(
+                            function (walletInfo2) {
+                              // do nothing
+                            }
+                          );
+                        }
+                      );
+                      let data = {
+                        'status': '200',
+                        'data': {
+                          'report': 'Giao dịch thành công!'
+                        }
+                      };
+                      res.send(data);
                     }
                   }
                 ).catch(function (error) {
