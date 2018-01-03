@@ -145,11 +145,11 @@ exports.send = function (req, res) {
               // console.log(transaction);
               axios.post('https://api.kcoin.club/transactions', transaction)
                 .then(function (response) {
-                  console.log('111111111111111111111111111111111');
-                  console.log(response.data);
+                  // console.log('111111111111111111111111111111111');
+                  // console.log(response.data);
                   let data = response.data;
-                  console.log("it's me!!!!!!!!!!!");
-                  console.log(data);
+                  // console.log("it's me!!!!!!!!!!!");
+                  // console.log(data);
                   if (data.hash != null) {
                     dbHelper.dbLoadSql(
                       `INSERT INTO tb_transaction (
@@ -205,7 +205,7 @@ exports.send = function (req, res) {
                               ]
                             ).then(
                               function (userInfo2) {
-                                console.log('usersereeeeeee')
+                                // console.log('usersereeeeeee')
                                 if (userInfo2[0]['id'] > 0) {
                                   dbHelper.dbLoadSql(
                                     `INSERT INTO tb_transaction_output (

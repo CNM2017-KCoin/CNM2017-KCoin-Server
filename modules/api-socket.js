@@ -7,16 +7,21 @@ ws.onopen = function () {
   console.log('connected');
 };
 
-ws.onmessage = function (data) {
-  data = JSON.parse(data.data)
-  console.log('incoming data', data)
-  console.log('Extract data', data.data)
- /* Block.addNewBlockItem(data.data, (err, rls)=>{
-    // console.log(rls)
-  })*/
+ws.onmessage = function (response) {
+  let data = JSON.parse(response.data)
+  /*console.log('111111111111111111');
+  console.log('incoming data', data);
+  console.log('222222222222222222222222');
+  console.log('Extract data', data.data);
+  console.log('33333333333333333333333333');
+  console.log('Trans data', data.data.transactions);*/
+
+  /* Block.addNewBlockItem(data.data, (err, rls)=>{
+     // console.log(rls)
+   })*/
 };
 
-var secondlyJob = schedule.scheduleJob('*/5 * * * * *', function(){
+var secondlyJob = schedule.scheduleJob('*/5 * * * * *', function () {
   ws.send('abc')
 });
 
