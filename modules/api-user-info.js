@@ -76,7 +76,7 @@ exports.getTotalInfo = function (req, res) {
   let email = params['email'] || '';
   console.log(params);
   dbHelper.dbLoadSql(
-    `SELECT *
+    `SELECT actual_amount, available_amount
     FROM tb_login l,tb_wallet w
     WHERE l.id = w.user_id`
   ).then(
@@ -107,6 +107,56 @@ exports.getTotalInfo = function (req, res) {
             'total_users': 0,
             'total_actual_amount': 0,
             'total_available_amount': 0,
+            'report': 'Giá trị trả về trống!'
+          }
+        };
+        res.send(data);
+      }
+    }
+  ).catch(function (error) {
+      let data = {
+        'status': '500',
+        'data': {
+          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+        }
+      };
+      res.send(data);
+    }
+  );
+};
+
+
+exports.getUsers = function (req, res) {
+  let params = req.body || {};
+  let offset = parseInt(params['offset']);
+  console.log(offset);
+  dbHelper.dbLoadSql(
+    `SELECT email, address, actual_amount, available_amount
+    FROM tb_login l,tb_wallet w
+    WHERE l.id = w.user_id
+    LIMIT 10 OFFSET ?`,
+    [
+      offset*10
+    ]
+  ).then(
+    function (usersList) {
+      console.log(usersList);
+      let total_actual_amount = 0;
+      let total_available_amount = 0;
+      if (usersList.length > 0) {
+          let data = {
+          'status': '200',
+          'data': {   
+            'users': usersList,
+            'report': 'Lấy thông tin thành công!'
+          }
+        };
+        res.send(data);
+      } else {
+        let data = {
+          'status': '200',
+          'data': {
+            'users': [],
             'report': 'Giá trị trả về trống!'
           }
         };
