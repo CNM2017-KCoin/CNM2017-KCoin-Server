@@ -95,7 +95,7 @@ exports.send = function (req, res) {
             }
             if (countAmount < amount) {
               let data = {
-                'status': '500',
+                'status': '400',
                 'data': {
                   'error': 'Số dư của tài khoản không đủ để thực hiện giao dịch này!'
                 }
