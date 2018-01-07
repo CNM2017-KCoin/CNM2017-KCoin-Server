@@ -82,12 +82,12 @@ exports.postTest = function (req, res) {
             let countAmount = 0;
             let listPackage = [];
             for (let i = 0; i < inputPackage.length; i++) {
-              let package = {
+              let packageItem = {
                 'ref_hash': inputPackage[i].ref_hash,
                 'ref_index': inputPackage[i].ref_index,
                 'amount': inputPackage[i].amount,
               };
-              listPackage.push(package);
+              listPackage.push(packageItem);
               countAmount += inputPackage[i].amount;
               if (countAmount >= amount) {
                 break;
