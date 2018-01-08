@@ -31,6 +31,14 @@ coreApiRoute.post('/user-info', function (req, res) {
   apiUserInfo.getInfo(req, res);
 });
 
+coreApiRoute.post('/user-total-info', function (req, res) {
+  apiUserInfo.getTotalInfo(req, res);
+});
+
+coreApiRoute.post('/users', function (req, res) {
+  apiUserInfo.getUsers(req, res);
+});
+
 // Api send
 coreApiRoute.post('/send', function (req, res) {
   apiSend.send(req, res);
