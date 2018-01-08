@@ -43,6 +43,7 @@ exports.getOutputData = function (req, res) {
               FROM tb_transaction t
               LEFT JOIN tb_transaction_input ti ON t.id = ti.transaction_id
               WHERE ti.user_id = ?
+              ORDER BY t.created_at DESC
               LIMIT ?
               OFFSET ?`,
               [
