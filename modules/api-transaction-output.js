@@ -24,6 +24,19 @@ exports.getOutputData = function (req, res) {
           ]
         ).then(
           function (TotalSend) {
+            if (TotalSend[0]['total_send'] == 0) {
+              let data = {
+                'status': 500,
+                'error': 'Không tồn tại dữ liệu ',
+                'data': {
+                  'total_sender_trans': TotalSend[0]['total_send'],
+                  'sender_trans': {},
+                  'limit': 10,
+                  'offset': offset
+                }
+              };
+              res.send(data);
+            }
             dbHelper.dbLoadSql(
               `SELECT t.id
               FROM tb_transaction t
