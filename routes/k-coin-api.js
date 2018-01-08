@@ -8,7 +8,7 @@ let apiUserInfo = require('../modules/api-user-info');
 let apiSend = require('../modules/api-send');
 let apiPostTest = require('../modules/api-post-test');
 let apiWebSocketTest = require('../modules/api-websocket-test');
-let apiTransactionOutput = require('../modules/api-transaction-output-2');
+let apiTransactionOutput = require('../modules/api-transaction-output');
 let apiTransactionInput = require('../modules/api-transaction-input');
 
 coreApiRoute.get('/test', function (req, res) {
