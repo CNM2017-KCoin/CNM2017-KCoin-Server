@@ -1,15 +1,17 @@
 let dbHelper = require('../helpers/db-helper');
 
-exports.getInputData = function (req, res) {
+exports.login = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
   let offset = params['offset'] || '';
   dbHelper.dbLoadSql(
-    `SELECT l.id, l.role, l.address 
+    `SELECT id,role 
     FROM tb_login l
-    WHERE l.email = ?`,
+    WHERE l.email = ?
+    AND l.password = ?`,
     [
-      email
+      email,
+      password
     ]
   ).then(
     function (userInfo) {
@@ -124,5 +126,15 @@ exports.getInputData = function (req, res) {
         );
       }
     }
+  ).catch(function (error) {
+      let data = {
+        'status': '500',
+        'data': {
+          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+        }
+      };
+      res.send(data);
+    }
   );
 };
+
