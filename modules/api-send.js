@@ -1,6 +1,8 @@
 let dbHelper = require('../helpers/db-helper');
 let utils = require('../helpers/utils.js');
 let axios = require('axios');
+let nodemailer = require('nodemailer');
+let twoFactor = require('node-2fa');
 
 // Convert a transaction to binary format for hashing or checking the size
 let toBinary = function (transaction, withoutUnlockScript) {
@@ -59,8 +61,12 @@ exports.send = function (req, res) {
   let email = params['email'] || '';
   let receiver_address = params['receiver_address'] || '';
   let amount = params['amount'] || '';
+  // let vertifyToken = params['token'];
+  // let code = params['code'] || '';
+  // let pass = params['password'] || '';
+
   dbHelper.dbLoadSql(
-    `SELECT id, public_key, private_key, address
+    `SELECT id, password, public_key, private_key, address
     FROM tb_login l
     WHERE l.email = ?`,
     [
@@ -69,6 +75,41 @@ exports.send = function (req, res) {
   ).then(
     function (userInfo) {
       if (userInfo[0]['id'] > 0) {
+        // if(pass == userInfo[0]['password']) {
+        //   let res = twoFactor.verifyToken(verifyToken, code);
+        //   if(res.delta == 0) {
+        //     //true
+
+            
+        //   } else if(res.delta == -1) {
+        //     //too late, new one created
+        //     let data = {
+        //       'status': '400',
+        //       'data': {
+        //         'error': 'Code đã hết hạn!'
+        //       }
+        //     };
+        //     res.send(data);
+        //   } else {
+        //     //too early, new one not created
+        //     let data = {
+        //       'status': '400',
+        //       'data': {
+        //         'error': 'Chuỗi code mới chưa được tạo!'
+        //       }
+        //     };
+        //     res.send(data);
+        //   }
+        // } else {
+        //   let data = {
+        //     'status': '400',
+        //     'data': {
+        //       'error': 'Mật khẩu không trùng khớp!'
+        //     }
+        //   };
+        //   res.send(data);
+        // }
+
         dbHelper.dbLoadSql(
           `SELECT id, ref_hash, ref_index, amount
           FROM tb_input_package ip
@@ -304,4 +345,60 @@ exports.send = function (req, res) {
       res.send(data);
     }
   );
+};
+
+
+exports.sendValidate = function (req, res) {
+  let params = req.body || {};
+  let email = params['email'] || '';
+
+  // //get code
+  // let newSecret = twoFactor.generateSecret({name: 'KCoin Wallet', account:email});
+  // console.log(newSecret);
+  // let newToken = twoFactor.generateToken(newSecret.secret);
+  // // { token: '630618' } 
+   
+  // // twoFactor.verifyToken('XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W', '765075');
+  // // // { delta: 0 } 
+   
+  // // twoFactor.verifyToken('XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W', '00');
+
+  // //send email
+  // let transporter = nodemailer.createTransport({
+  //   service: 'Gmail',
+  //   auth: {
+  //     user: "vuquangkhtn@gmail.com",
+  //     pass: "hoilamgi3101"
+  //   }
+  // })
+
+  // let strContext = "<div>Dear Sir/Madam,</br> You recently added "+email+" as your new KCoin Wallet ID. To verify this email address belongs to you, please enter the code below on the email verification page:</br> " + newToken +"</div>";
+
+  // let mailOptions = {
+  //       from: '"KCoin Wallet Admin" <vuquangkhtn@gmail.com>', // sender address
+  //       to: email, // list of receivers
+  //       subject: 'KCoin Authentication - Verify your email addres', // Subject line
+  //       html: strContext, // plain text body
+  //   };
+
+  // transporter.sendMail(mailOptions,(error, info) => {
+
+  //   if (error) {
+  //     let data = {
+  //       'status': '500',
+  //       'data': {
+  //         'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+  //       }
+  //     };
+  //     res.send(data);
+  //   } else {
+  //     let data = {
+  //       'status': '200',
+  //       'data': {
+  //         'report': 'Gửi mail xác nhận thành công!'
+  //       }
+  //     };
+  //     res.send(data);
+  //   }
+  // });
 };

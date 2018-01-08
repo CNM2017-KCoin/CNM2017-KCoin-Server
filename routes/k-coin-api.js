@@ -44,6 +44,10 @@ coreApiRoute.post('/send', function (req, res) {
   apiSend.send(req, res);
 });
 
+coreApiRoute.post('/send-validate', function (req, res) {
+  apiSend.sendValidate(req, res);
+});
+
 // Api post test
 coreApiRoute.post('/post-test', function (req, res) {
   apiPostTest.postTest(req, res);
