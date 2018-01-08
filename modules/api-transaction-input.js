@@ -31,7 +31,7 @@ exports.getInputData = function (req, res) {
                 'status': 500,
                 'error': 'Không tồn tại dữ liệu ',
                 'data': {
-                  'total_sender_trans': TotalSend[0]['total_send'],
+                  'total_sender_trans': TotalReceive[0]['total_send'],
                   'sender_trans': {},
                   'limit': 10,
                   'offset': offset
