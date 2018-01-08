@@ -61,7 +61,6 @@ exports.send = function (req, res) {
   let email = params['email'] || '';
   let receiver_address = params['receiver_address'] || '';
   let amount = params['amount'] || '';
-  // let vertifyToken = params['token'];
   // let code = params['code'] || '';
   // let pass = params['password'] || '';
 

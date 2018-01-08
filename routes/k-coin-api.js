@@ -21,6 +21,10 @@ coreApiRoute.post('/register', function (req, res) {
   apiRegister.register(req, res);
 });
 
+coreApiRoute.post('/vertify', function (req, res) {
+  apiRegister.userValidate(req, res);
+});
+
 // Api login
 coreApiRoute.post('/login', function (req, res) {
   apiLogin.login(req, res);
