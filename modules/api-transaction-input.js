@@ -32,7 +32,7 @@ exports.getInputData = function (req, res) {
                 'error': 'Không tồn tại dữ liệu ',
                 'data': {
                   'total_receiver_trans': 0,
-                  'receiver_trans': {},
+                  'receiver_trans': [],
                   'limit': 10,
                   'offset': offset
                 }
@@ -61,7 +61,7 @@ exports.getInputData = function (req, res) {
                     'error': 'Không tồn tại dữ liệu phân trang này',
                     'data': {
                       'total_receiver_trans': 0,
-                      'receiver_trans': {},
+                      'receiver_trans': [],
                       'limit': 10,
                       'offset': offset
                     }

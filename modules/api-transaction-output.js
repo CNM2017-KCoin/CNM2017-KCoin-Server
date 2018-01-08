@@ -31,7 +31,7 @@ exports.getOutputData = function (req, res) {
                 'error': 'Không tồn tại dữ liệu!',
                 'data': {
                   'total_sender_trans': 0,
-                  'sender_trans': {},
+                  'sender_trans': [],
                   'limit': 10,
                   'offset': offset
                 }
@@ -58,7 +58,7 @@ exports.getOutputData = function (req, res) {
                     'error': 'Không tồn tại dữ liệu phân trang này',
                     'data': {
                       'total_sender_trans': TotalSend[0]['total_send'],
-                      'sender_trans': {},
+                      'sender_trans': [],
                       'limit': 10,
                       'offset': offset
                     }
