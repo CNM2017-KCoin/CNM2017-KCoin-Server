@@ -1,11 +1,11 @@
 let dbHelper = require('../helpers/db-helper');
 
-exports.getOutputData = function (req, res) {
+exports.getInputData = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
   let offset = params['offset'] || '';
   dbHelper.dbLoadSql(
-    `SELECT id, role 
+    `SELECT l.id, l.role, l.address 
     FROM tb_login l
     WHERE l.email = ?`,
     [
@@ -15,26 +15,26 @@ exports.getOutputData = function (req, res) {
     function (userInfo) {
       if (userInfo[0]['id'] > 0) {
         dbHelper.dbLoadSql(
-          `SELECT COUNT(t.id) as total_send
+          `SELECT COUNT(t.id) as total_receive
           FROM tb_transaction t
-          LEFT JOIN tb_transaction_input ti ON t.id = ti.transaction_id
-          WHERE ti.user_id = ?`,
+          LEFT JOIN tb_transaction_output tto ON t.id = tto.transaction_id
+          WHERE tto.user_id = ?
+          AND t.status = ?`,
           [
-            userInfo[0]['id']
+            userInfo[0]['id'],
+            'success'
           ]
         ).then(
-          function (TotalSend) {
+          function (TotalReceive) {
             dbHelper.dbLoadSql(
               `SELECT t.id
               FROM tb_transaction t
-              LEFT JOIN tb_transaction_input ti ON t.id = ti.transaction_id
-              WHERE ti.user_id = ?
-              LIMIT ?
-              OFFSET ?`,
+              LEFT JOIN tb_transaction_output tto ON t.id = tto.transaction_id
+              WHERE tto.user_id = ?`,
               [
                 userInfo[0]['id'],
-                10,
-                offset*10
+                // 10,
+                // offset*10
               ]
             ).then(
               function (transactionIdList) {
@@ -43,7 +43,7 @@ exports.getOutputData = function (req, res) {
                     'status': 500,
                     'error': 'Không tồn tại dữ liệu phân trang này',
                     'data': {
-                      'total_sender_trans': TotalSend[0]['total_send'],
+                      'total_sender_trans': TotalReceive[0]['total_receive'],
                       'sender_trans': {},
                       'limit': 10,
                       'offset': offset
@@ -52,7 +52,7 @@ exports.getOutputData = function (req, res) {
                   res.send(data);
                 }
                 //, t.created_at, t.send_amount, t.status
-                let sender_data = [];
+                let receiver_data = [];
                 for (let i = 0; i < transactionIdList.length; i++) {
                   dbHelper.dbLoadSql(
                     `SELECT t.created_at, t.send_amount, t.status
@@ -62,33 +62,35 @@ exports.getOutputData = function (req, res) {
                       transactionIdList[i]['id']
                     ]
                   ).then(
-                    function (sendInfo) {
-                      for (let j = 0; j < sendInfo.length; j++) {
+                    function (ReceiveInfo) {
+                      for (let j = 0; j < ReceiveInfo.length; j++) {
                         dbHelper.dbLoadSql(
-                          `SELECT tto.user_id, tto.address
-                          FROM tb_transaction_output tto
-                          WHERE tto.transaction_id = ?`,
+                          `SELECT ti.user_id, ti.address, ti.ref_hash, ti.ref_index
+                          FROM tb_transaction_input ti
+                          WHERE ti.transaction_id = ?`,
                           [
-                            sendInfo[j]['id']
+                            transactionIdList[i]['id']
                           ]
                         ).then(
-                          function (outputInfo) {
+                          function (inputInfo) {
                             let temp = {
                               'transaction_id': transactionIdList[i]['id'],
-                              'timestamp': sendInfo[j]['created_at'],
-                              'amount': sendInfo[j]['send_amount'],
-                              'status': sendInfo[j]['status'],
-                              'receiver_id': outputInfo['id'],
-                              'receiver_address': outputInfo['address'],
+                              'timestamp': ReceiveInfo[j]['created_at'],
+                              'amount': ReceiveInfo[j]['send_amount'],
+                              'status': ReceiveInfo[j]['status'],
+                              'sender_id': inputInfo[0]['user_id'],
+                              'sender_address': inputInfo[0]['address'],
+                              'ref_hash': inputInfo[0]['ref_hash'],
+                              'ref_index': inputInfo[0]['ref_index'],
                             };
-                            sender_data.push(temp);
-                            if (j == sendInfo.length - 1 && i == transactionIdList.length - 1) {
+                            receiver_data.push(temp);
+                            if (j == ReceiveInfo.length - 1 && i == transactionIdList.length - 1) {
                               let data = {
                                 'status': 200,
                                 'report': 'Lấy dữ liệu thành công!',
                                 'data': {
-                                  'total_sender_trans': TotalSend[0]['total_send'],
-                                  'sender_trans': sender_data,
+                                  'total_receiver_trans': TotalReceive[0]['total_receive'],
+                                  'receiver_trans': receiver_data,
                                   'limit': 10,
                                   'offset': offset
                                 }
