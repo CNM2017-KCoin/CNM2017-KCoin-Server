@@ -48,4 +48,8 @@ coreApiRoute.post('/send', function (req, res) {
 coreApiRoute.post('/post-test', function (req, res) {
   apiPostTest.postTest(req, res);
 });
+// Api websocket test
+coreApiRoute.post('/websocket-test', function (req, res) {
+  apiWebSocketTest.webSocketTest(req, res);
+});
 module.exports = coreApiRoute;
