@@ -90,7 +90,7 @@ exports.getInputData = function (req, res) {
                         'ref_index': inputInfo[0]['ref_index'],
                       };
                       receiver_data.push(temp);
-                      if (i == transactionIdList.length - 1) {
+                      if (receiver_data.length == TotalReceive[0]['total_receive']) {
                         let data = {
                           'status': 200,
                           'report': 'Lấy dữ liệu thành công!',
