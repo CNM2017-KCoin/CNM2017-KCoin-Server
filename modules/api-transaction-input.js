@@ -28,7 +28,7 @@ exports.getInputData = function (req, res) {
           function (TotalReceive) {
             if (TotalReceive[0]['total_receive'] == 0) {
               let data = {
-                'status': 500,
+                'status': 200,
                 'error': 'Không tồn tại dữ liệu ',
                 'data': {
                   'total_receiver_trans': 0,
@@ -57,7 +57,7 @@ exports.getInputData = function (req, res) {
               function (transactionIdList) {
                 if (transactionIdList.length == 0) {
                   let data = {
-                    'status': 500,
+                    'status': 200,
                     'error': 'Không tồn tại dữ liệu phân trang này',
                     'data': {
                       'total_receiver_trans': 0,
