@@ -7,6 +7,8 @@ let apiLogin = require('../modules/api-login');
 let apiUserInfo = require('../modules/api-user-info');
 let apiSend = require('../modules/api-send');
 let apiPostTest = require('../modules/api-post-test');
+let apiWebSocketTest = require('../modules/api-websocket-test');
+let apiTransactionOutput = require('../modules/api-transaction-output');
 
 const WebSocket = require('ws');
 
@@ -48,8 +50,14 @@ coreApiRoute.post('/send', function (req, res) {
 coreApiRoute.post('/post-test', function (req, res) {
   apiPostTest.postTest(req, res);
 });
+
 // Api websocket test
 coreApiRoute.post('/websocket-test', function (req, res) {
   apiWebSocketTest.webSocketTest(req, res);
+});
+
+// Api transaction output
+coreApiRoute.post('/transaction-output', function (req, res) {
+  apiTransactionOutput.getOutputData(req, res);
 });
 module.exports = coreApiRoute;
