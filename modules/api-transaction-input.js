@@ -46,7 +46,8 @@ exports.getInputData = function (req, res) {
               WHERE tto.user_id = ?
               AND t.status = ?
               LIMIT ?
-              OFFSET ?`,
+              OFFSET ?
+              ORDER BY t.created_at DESC`,
               [
                 userInfo[0]['id'],
                 'success',
