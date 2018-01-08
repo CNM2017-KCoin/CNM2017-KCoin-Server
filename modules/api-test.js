@@ -1,25 +1,26 @@
 let dbHelper = require('../helpers/db-helper');
-
+let nodemailer = require('nodemailer');
 exports.test = function (req, res) {
-  dbHelper.dbLoadSql(
-    `SELECT id 
-    FROM test`,
-    []
-  ).then(
-    function (test) {
-      let data = {
-        'status': '1',
-        'data': []
-      };
+  var transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: 'phamductien133@gmail.com',
+      pass: 'Aspirine1'
+    }
+  });
 
-      res.send(data);
+  var mailOptions = {
+    from: 'phamductien133@gmail.com',
+    to: 'phamductien1417@gmail.com',
+    subject: 'Sending Email using Node.js',
+    text: 'That was easy!'
+  };
+
+  transporter.sendMail(mailOptions, function(error, info){
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
     }
-  ).catch(function (error) {
-      let data = {
-        'status': '0',
-        'data': []
-      };
-      res.send(data);
-    }
-  );
+  });
 };
