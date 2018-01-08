@@ -1,6 +1,6 @@
 let dbHelper = require('../helpers/db-helper');
 
-exports.login = function (req, res) {
+exports.getInputData = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
   let offset = params['offset'] || '';
