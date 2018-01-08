@@ -75,7 +75,7 @@ exports.getData = function (req, res) {
                   'receiver_address': outputInfo[0]['address'],
                 };
                 transaction_data.push(temp);
-                if (i == TotalTransaction[0]['total_transaction'] - 1) {
+                if (transaction_data.length == TotalTransaction[0]['total_transaction']) {
                   let data = {
                     'status': 200,
                     'report': 'Lấy dữ liệu thành công!',
