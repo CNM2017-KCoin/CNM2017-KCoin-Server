@@ -5,13 +5,11 @@ exports.getInputData = function (req, res) {
   let email = params['email'] || '';
   let offset = params['offset'] || '';
   dbHelper.dbLoadSql(
-    `SELECT id,role 
+    `SELECT l.id, l.role, l.address 
     FROM tb_login l
-    WHERE l.email = ?
-    AND l.password = ?`,
+    WHERE l.email = ?`,
     [
-      email,
-      password
+      email
     ]
   ).then(
     function (userInfo) {
@@ -28,7 +26,7 @@ exports.getInputData = function (req, res) {
           ]
         ).then(
           function (TotalReceive) {
-            if (TotalSend[0]['total_send'] == 0) {
+            if (TotalReceive[0]['total_send'] == 0) {
               let data = {
                 'status': 500,
                 'error': 'Không tồn tại dữ liệu ',
