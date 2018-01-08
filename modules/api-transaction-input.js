@@ -26,13 +26,13 @@ exports.getInputData = function (req, res) {
           ]
         ).then(
           function (TotalReceive) {
-            if (TotalReceive[0]['total_send'] == 0) {
+            if (TotalReceive[0]['total_receive'] == 0) {
               let data = {
                 'status': 500,
                 'error': 'Không tồn tại dữ liệu ',
                 'data': {
-                  'total_sender_trans': TotalReceive[0]['total_send'],
-                  'sender_trans': {},
+                  'total_receiver_trans': 0,
+                  'receiver_trans': {},
                   'limit': 10,
                   'offset': offset
                 }
@@ -58,8 +58,8 @@ exports.getInputData = function (req, res) {
                     'status': 500,
                     'error': 'Không tồn tại dữ liệu phân trang này',
                     'data': {
-                      'total_sender_trans': TotalReceive[0]['total_receive'],
-                      'sender_trans': {},
+                      'total_receiver_trans': 0,
+                      'receiver_trans': {},
                       'limit': 10,
                       'offset': offset
                     }
@@ -99,7 +99,7 @@ exports.getInputData = function (req, res) {
                               'ref_index': inputInfo[0]['ref_index'],
                             };
                             receiver_data.push(temp);
-                            if (j == ReceiveInfo.length - 1 && i == transactionIdList.length - 1) {
+                            if (i == transactionIdList.length - 1 && j == ReceiveInfo.length - 1) {
                               let data = {
                                 'status': 200,
                                 'report': 'Lấy dữ liệu thành công!',
