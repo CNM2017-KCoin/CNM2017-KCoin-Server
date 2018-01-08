@@ -8,7 +8,8 @@ exports.getData = function (req, res) {
   dbHelper.dbLoadSql(
     `SELECT COUNT(t.id) as total_transaction
     FROM tb_transaction t
-    LEFT JOIN tb_transaction_input ti ON t.id = ti.transaction_id`,
+    LEFT JOIN tb_transaction_input ti ON t.id = ti.transaction_id
+    ORDER BY t.created_at DESC`,
     []
   ).then(
     function (TotalTransaction) {
@@ -30,6 +31,7 @@ exports.getData = function (req, res) {
         ti.ref_index, ti.address as sender_address, ti.user_id as sender_id
         FROM tb_transaction t
         LEFT JOIN tb_transaction_input ti ON t.id = ti.transaction_id
+        ORDER BY t.created_at DESC
         LIMIT ?
         OFFSET ?`,
         [
