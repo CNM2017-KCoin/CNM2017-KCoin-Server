@@ -6,6 +6,10 @@ let mysqlOptions = {
   user: 'sql12213542',
   password: 'UXjQaxJ2xf',
   database: 'sql12213542',
+  /*host: '127.0.0.1',
+  user: 'root',
+  password: '',
+  database: 'db_kcoin',*/
   socketPath: false,
   connectionLimit: 5
 };

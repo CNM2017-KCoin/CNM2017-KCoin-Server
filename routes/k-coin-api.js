@@ -59,7 +59,8 @@ coreApiRoute.post('/websocket-test', function (req, res) {
 
 // Api transaction output
 coreApiRoute.post('/transaction-output', function (req, res) {
-  apiTransactionOutput.getOutputData(req, res);
+  // apiTransactionOutput.getOutputData(req, res);
+  apiUserInfo.getInfo(req, res);
 });
 
 // Api transaction input
