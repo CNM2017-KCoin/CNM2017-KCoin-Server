@@ -68,7 +68,6 @@ exports.getOutputData = function (req, res) {
                 //, t.created_at, t.send_amount, t.status
                 let test = 0;
                 for (let i = 0; i < transactionIdList.length; i++) {
-                  console.log('id: '+transactionIdList[i].id);
                   dbHelper.dbLoadSql(
                     `SELECT tto.user_id, tto.address
                     FROM tb_transaction_output tto
@@ -87,8 +86,6 @@ exports.getOutputData = function (req, res) {
                         'receiver_address': outputInfo[0]['address'],
                       };
                       sender_data.push(temp);
-                      console.log('11111111'+ sender_data.length);
-                      console.log('22222222'+ TotalSend[0]['total_send']);
                       if ((sender_data.length == TotalSend[0]['total_send'])) {
                         let data = {
                           'status': 200,

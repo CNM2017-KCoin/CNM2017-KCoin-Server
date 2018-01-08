@@ -68,7 +68,6 @@ exports.getInputData = function (req, res) {
                   };
                   res.send(data);
                 }
-                //, t.created_at, t.send_amount, t.status
                 let receiver_data = [];
                 for (let i = 0; i < transactionIdList.length; i++) {
                   dbHelper.dbLoadSql(
