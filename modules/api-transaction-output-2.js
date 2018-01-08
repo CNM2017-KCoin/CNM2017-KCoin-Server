@@ -82,7 +82,7 @@ exports.getOutputData = function (req, res) {
                           FROM tb_transaction_output tto
                           WHERE tto.transaction_id = ?`,
                           [
-                            sendInfo[j]['id']
+                            transactionIdList[i]['id']
                           ]
                         ).then(
                           function (outputInfo) {
@@ -91,8 +91,8 @@ exports.getOutputData = function (req, res) {
                               'timestamp': sendInfo[j]['created_at'],
                               'amount': sendInfo[j]['send_amount'],
                               'status': sendInfo[j]['status'],
-                              'receiver_id': outputInfo['id'],
-                              'receiver_address': outputInfo['address'],
+                              'receiver_id': outputInfo[0]['user_id'],
+                              'receiver_address': outputInfo[0]['address'],
                             };
                             sender_data.push(temp);
                             if (j == sendInfo.length - 1 && i == transactionIdList.length - 1) {
