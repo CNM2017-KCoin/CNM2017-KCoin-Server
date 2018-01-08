@@ -12,8 +12,8 @@ let kCoinApi = require('./routes/k-coin-api');
 let app = express();
 let cors = require('cors');
 let mwWebSocket = require('./modules/api-socket');
-app.use(mwWebSocket.Listen);
 app.use(cors({credentials: true}));
+app.use(mwWebSocket.Listen);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'twig');
