@@ -27,7 +27,7 @@ exports.getOutputData = function (req, res) {
           function (TotalSend) {
             if (TotalSend[0]['total_send'] == 0) {
               let data = {
-                'status': 500,
+                'status': 200,
                 'error': 'Không tồn tại dữ liệu!',
                 'data': {
                   'total_sender_trans': 0,
@@ -54,7 +54,7 @@ exports.getOutputData = function (req, res) {
               function (transactionIdList) {
                 if (transactionIdList.length == 0) {
                   let data = {
-                    'status': 500,
+                    'status': 200,
                     'error': 'Không tồn tại dữ liệu phân trang này',
                     'data': {
                       'total_sender_trans': TotalSend[0]['total_send'],
