@@ -70,7 +70,7 @@ exports.send = function (req, res) {
     function (userInfo) {
       if (userInfo[0]['id'] > 0) {
         dbHelper.dbLoadSql(
-          `SELECT id, ref_hash, ref_index, amount 
+          `SELECT id, ref_hash, ref_index, amount
           FROM tb_input_package ip
           WHERE ip.amount != 0
           AND ip.user_id = ?`,
@@ -82,12 +82,12 @@ exports.send = function (req, res) {
             let countAmount = 0;
             let listPackage = [];
             for (let i = 0; i < inputPackage.length; i++) {
-              let package = {
+              let packageItem = {
                 'ref_hash': inputPackage[i].ref_hash,
                 'ref_index': inputPackage[i].ref_index,
-                'amount': inputPackage[i].amount,
+                'amount': inputPackage[i].amount
               };
-              listPackage.push(package);
+              listPackage.push(packageItem);
               countAmount += inputPackage[i].amount;
               if (countAmount >= amount) {
                 break;
@@ -95,7 +95,7 @@ exports.send = function (req, res) {
             }
             if (countAmount < amount) {
               let data = {
-                'status': '500',
+                'status': '400',
                 'data': {
                   'error': 'Số dư của tài khoản không đủ để thực hiện giao dịch này!'
                 }
@@ -231,7 +231,7 @@ exports.send = function (req, res) {
                           }
                           // Update available amount
                           dbHelper.dbLoadSql(
-                            `SELECT actual_amount 
+                            `SELECT actual_amount
                             FROM tb_wallet w
                             WHERE w.user_id = ?`,
                             [
@@ -305,4 +305,3 @@ exports.send = function (req, res) {
     }
   );
 };
-

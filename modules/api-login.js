@@ -5,7 +5,7 @@ exports.login = function (req, res) {
   let email = params['email'] || '';
   let password = params['password'] || '';
   dbHelper.dbLoadSql(
-    `SELECT id 
+    `SELECT id,role 
     FROM tb_login l
     WHERE l.email = ?
     AND l.password = ?`,
@@ -21,6 +21,7 @@ exports.login = function (req, res) {
         data = {
           'status': '200',
           'data': {
+            'role':userInfo[0]['role'],
             'report': 'Đăng nhập thành công!'
           }
         };
