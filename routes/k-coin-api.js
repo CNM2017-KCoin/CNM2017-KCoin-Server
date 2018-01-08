@@ -10,6 +10,7 @@ let apiPostTest = require('../modules/api-post-test');
 let apiWebSocketTest = require('../modules/api-websocket-test');
 let apiTransactionOutput = require('../modules/api-transaction-output');
 let apiTransactionInput = require('../modules/api-transaction-input');
+let apiAdminTransaction = require('../modules/api-admin-transaction');
 
 coreApiRoute.get('/test', function (req, res) {
   apiTest.test(req, res);
@@ -66,6 +67,11 @@ coreApiRoute.post('/transaction-output', function (req, res) {
 // Api transaction input
 coreApiRoute.post('/transaction-input', function (req, res) {
   apiTransactionInput.getInputData(req, res);
+});
+
+// Api transaction input
+coreApiRoute.post('/transaction-list', function (req, res) {
+  apiAdminTransaction.getData(req, res);
 });
 
 module.exports = coreApiRoute;
