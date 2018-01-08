@@ -1,6 +1,7 @@
 const WebSocket = require('ws');
 const ws = new WebSocket('wss://api.kcoin.club/');
 var schedule = require('node-schedule');
+let dbHelper = require('../helpers/db-helper');
 //var Block = require('../models/BLock');
 
 ws.onopen = function () {
