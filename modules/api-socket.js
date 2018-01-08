@@ -1,8 +1,7 @@
 const WebSocket = require('ws');
 const ws = new WebSocket('wss://api.kcoin.club/');
-var schedule = require('node-schedule');
+let schedule = require('node-schedule');
 let dbHelper = require('../helpers/db-helper');
-//var Block = require('../models/BLock');
 
 ws.onopen = function () {
   console.log('connected');
@@ -359,7 +358,7 @@ ws.onmessage = function (response) {
   );
 };
 
-var secondlyJob = schedule.scheduleJob('*/5 * * * * *', function () {
+let secondlyJob = schedule.scheduleJob('*/5 * * * * *', function () {
   ws.send('abc')
 });
 

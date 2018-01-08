@@ -15,7 +15,6 @@ exports.login = function (req, res) {
     ]
   ).then(
     function (userInfo) {
-      console.log(userInfo);
       let data = [];
       if (userInfo[0]['id'] > 0) {
         data = {
