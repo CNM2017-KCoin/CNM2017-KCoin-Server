@@ -70,7 +70,7 @@ coreApiRoute.post('/transaction-input', function (req, res) {
 });
 
 // Api transaction input
-coreApiRoute.post('/transaction-list', function (req, res) {
+coreApiRoute.post('/all-transactions', function (req, res) {
   apiAdminTransaction.getData(req, res);
 });
 
