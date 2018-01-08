@@ -30,11 +30,13 @@ exports.getInputData = function (req, res) {
               `SELECT t.id
               FROM tb_transaction t
               LEFT JOIN tb_transaction_output tto ON t.id = tto.transaction_id
-              WHERE tto.user_id = ?`,
+              WHERE tto.user_id = ?
+              LIMIT ?
+              OFFSET ?`,
               [
                 userInfo[0]['id'],
-                // 10,
-                // offset*10
+                10,
+                offset*10
               ]
             ).then(
               function (transactionIdList) {
