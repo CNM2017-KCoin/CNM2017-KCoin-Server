@@ -124,9 +124,11 @@ exports.getOutputData = function (req, res) {
                   dbHelper.dbLoadSql(
                     `SELECT tto.user_id, tto.address
                     FROM tb_transaction_output tto
-                    WHERE tto.transaction_id = ?`,
+                    WHERE tto.transaction_id = ?
+                    AND tto.user_id != ?`,
                     [
-                      transactionIdList[i]['id']
+                      transactionIdList[i]['id'],
+                      userInfo[0]['id']
                     ]
                   ).then(
                     function (outputInfo) {
