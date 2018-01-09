@@ -790,34 +790,13 @@ exports.cancelTransaction = function (req, res) {
                 };
                 let response = [];
                 logTransaction.saveLogTransaction(request, response);
-                // update số dư khả dụng - available amount
-                dbHelper.dbLoadSql(
-                  `UPDATE tb_wallet
-                  SET	available_amount = ?
-                  WHERE user_id = ?`,
-                  [
-                    userInfo[0]['available_amount'] + transactionInfo[0]['send_amount'],
-                    userInfo[0]['id']
-                  ]
-                ).then(
-                  function (walletInfo) {
-                    let data = {
-                      'status': '200',
-                      'data': {
-                        'report': 'Giao dịch thành công!'
-                      }
-                    };
-                    res.send(data);
+                let data = {
+                  'status': '200',
+                  'data': {
+                    'report': 'Giao dịch thành công!'
                   }
-                ).catch(function (error) {
-                    let data = {
-                      'status': '500',
-                      'data': {
-                        'error': "don't update available amount success!!!"
-                      }
-                    };
-                  }
-                );
+                };
+                res.send(data);
               }
             );
           } else {
