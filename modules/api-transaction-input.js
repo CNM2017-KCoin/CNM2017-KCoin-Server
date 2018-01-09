@@ -40,7 +40,7 @@ exports.getInputData = function (req, res) {
               res.send(data);
             }
             dbHelper.dbLoadSql(
-              `SELECT t.id, t.created_at, t.send_amount, t.status
+              `SELECT t.id, t.created_at, t.send_amount, t.status, tto.amount, tto.ref_index
               FROM tb_transaction t
               LEFT JOIN tb_transaction_output tto ON t.id = tto.transaction_id
               WHERE tto.user_id = ?
@@ -85,12 +85,12 @@ exports.getInputData = function (req, res) {
                       let temp = {
                         'transaction_id': transactionIdList[i]['id'],
                         'timestamp': transactionIdList[i]['created_at'],
-                        'amount': inputInfo[0]['amount'],
+                        'amount': transactionIdList[i]['amount'],
                         'status': transactionIdList[i]['status'],
                         'sender_id': inputInfo[0]['user_id'],
                         'sender_address': inputInfo[0]['address'],
                         'ref_hash': inputInfo[0]['ref_hash'],
-                        'ref_index': inputInfo[0]['ref_index'],
+                        'ref_index': transactionIdList[i]['ref_index'],
                       };
                       receiver_data.push(temp);
                       if (receiver_data.length == TotalReceive[0]['total_receive']) {
