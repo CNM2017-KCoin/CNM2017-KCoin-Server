@@ -11,6 +11,7 @@ let apiWebSocketTest = require('../modules/api-websocket-test');
 let apiTransactionOutput = require('../modules/api-transaction-output');
 let apiTransactionInput = require('../modules/api-transaction-input');
 let apiAdminTransaction = require('../modules/api-admin-transaction');
+let apiGetTransactionLog = require('../modules/api-transaction-log');
 
 coreApiRoute.get('/test', function (req, res) {
   apiTest.test(req, res);
@@ -87,4 +88,8 @@ coreApiRoute.post('/cancel-transaction', function (req, res) {
   apiSend.cancelTransaction(req, res);
 });
 
+// Api get transaction log
+coreApiRoute.post('/get-transaction-log', function (req, res) {
+  apiGetTransactionLog.getLogTransaction(req, res);
+});
 module.exports = coreApiRoute;
