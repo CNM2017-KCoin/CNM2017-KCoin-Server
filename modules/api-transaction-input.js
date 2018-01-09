@@ -72,7 +72,7 @@ exports.getInputData = function (req, res) {
                 let receiver_data = [];
                 for (let i = 0; i < transactionIdList.length; i++) {
                   dbHelper.dbLoadSql(
-                    `SELECT ti.user_id, ti.address, ti.ref_hash, ti.ref_index, t.amount
+                    `SELECT ti.user_id, ti.address, ti.ref_hash, ti.ref_index, ti.amount
                     FROM tb_transaction_input ti
                     WHERE ti.transaction_id = ?`,
                     [
