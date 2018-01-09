@@ -194,8 +194,8 @@ exports.send = function (req, res) {
                       // console.log(transaction);
                       axios.post('https://api.kcoin.club/transactions', transaction)
                         .then(function (response) {
-                          // console.log('111111111111111111111111111111111');
-                          // console.log(response.data);
+                          console.log('111111111111111111111111111111111');
+                          console.log(response.data);
                           let data = response.data;
                           // console.log("it's me!!!!!!!!!!!");
                           // console.log(data);
@@ -492,7 +492,7 @@ exports.sendValidate = function (req, res) {
 
         let mailOptions = {
           from: 'vuquangkhtn@gmail.com', // sender address
-          to: 'phamductien1417@gmail.com', // list of receivers
+          to: email, // list of receivers
           subject: 'KCoin Authentication - Verify your email address', // Subject line
           html: strContext, // plain text body
         };

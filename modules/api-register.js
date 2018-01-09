@@ -91,7 +91,7 @@ exports.register = function (req, res) {
 
                     let mailOptions = {
                           from: 'vuquangkhtn@gmail.com', // sender address
-                          to: "phamductien1417@gmail.com", // list of receivers
+                          to: email, // list of receivers
                           subject: 'KCoin Authentication - Verify your email address', // Subject line
                           text: 'You recieved message from ',
                           html: strContext, // plain text body
