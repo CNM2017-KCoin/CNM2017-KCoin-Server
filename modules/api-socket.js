@@ -86,8 +86,8 @@ ws.onmessage = function (response) {
                               && inputServerList[h]['referencedOutputIndex'] == inputPackageList[k]['ref_index']) {
                               dbHelper.dbLoadSql(
                                 `UPDATE tb_input_package
-                            SET amount = ?
-                            WHERE id = ?`,
+                                SET amount = ?
+                                WHERE id = ?`,
                                 [
                                   0,
                                   inputPackageList[k]['id']
@@ -115,8 +115,8 @@ ws.onmessage = function (response) {
                           // get user_id by address
                           dbHelper.dbLoadSql(
                             `SELECT id, email
-                        FROM tb_login l
-                        WHERE l.address = ?`,
+                            FROM tb_login l
+                            WHERE l.address = ?`,
                             [
                               outputServerList[k]['lockScript'].substr(4, outputServerList[k]['lockScript'].length)
                             ]
@@ -125,11 +125,11 @@ ws.onmessage = function (response) {
                             function (userInfo) {
                               dbHelper.dbLoadSql(
                                 `INSERT INTO tb_input_package (
-                            user_id, 
-                            ref_hash,
-                            ref_index,
-                            amount)
-                            VALUES (?, ?, ?, ?)`,
+                                user_id, 
+                                ref_hash,
+                                ref_index,
+                                amount)
+                                VALUES (?, ?, ?, ?)`,
                                 [
                                   userInfo[0]['id'],
                                   transactionServerList[i].hash,
@@ -141,9 +141,9 @@ ws.onmessage = function (response) {
                                   // Count amount of input package to count actual amount
                                   dbHelper.dbLoadSql(
                                     `SELECT SUM(ip.amount) as total_actual_amount
-                                FROM tb_input_package ip
-                                WHERE ip.user_id = ?
-                                AND ip.amount != ?`,
+                                    FROM tb_input_package ip
+                                    WHERE ip.user_id = ?
+                                    AND ip.amount != ?`,
                                     [
                                       userInfo[0]['id'],
                                       0
@@ -153,8 +153,8 @@ ws.onmessage = function (response) {
                                       // update actual amount on tb_wallet
                                       dbHelper.dbLoadSql(
                                         `UPDATE tb_wallet
-                                    SET actual_amount = ?
-                                    WHERE user_id = ?`,
+                                        SET actual_amount = ?
+                                        WHERE user_id = ?`,
                                         [
                                           actualAmountInfo[0]['total_actual_amount'],
                                           userInfo[0]['id']
@@ -164,10 +164,10 @@ ws.onmessage = function (response) {
                                           // count send_amount from table tb_transaction and tb_transaction_input
                                           dbHelper.dbLoadSql(
                                             `SELECT SUM(t.send_amount) as total_send_amount
-                                        FROM tb_transaction t
-                                        LEFT JOIN tb_transaction_input ti ON t.id = ti.transaction_id
-                                        WHERE t.status = ?
-                                        AND ti.user_id = ?`,
+                                            FROM tb_transaction t
+                                            LEFT JOIN tb_transaction_input ti ON t.id = ti.transaction_id
+                                            WHERE t.status = ?
+                                            AND ti.user_id = ?`,
                                             [
                                               'waiting',
                                               userInfo[0]['id']
@@ -177,8 +177,8 @@ ws.onmessage = function (response) {
                                               // update available amount on tb_wallet
                                               dbHelper.dbLoadSql(
                                                 `UPDATE tb_wallet
-                                            SET	available_amount = ?
-                                            WHERE user_id = ?`,
+                                                SET	available_amount = ?
+                                                WHERE user_id = ?`,
                                                 [
                                                   actualAmountInfo[0]['total_actual_amount'] - sendAmountInfo[0]['total_send_amount'],
                                                   userInfo[0]['id']
