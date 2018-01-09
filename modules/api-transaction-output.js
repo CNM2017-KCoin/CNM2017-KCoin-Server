@@ -73,7 +73,7 @@ exports.getOutputData = function (req, res) {
                 //, t.created_at, t.send_amount, t.status
                 let transactionIdList = [];
                 for (let i = 0; i < transIdList.length; i++) {
-                  if(transIdList[i]['status'] == 'creating') {
+                  if (transIdList[i]['status'] == 'creating') {
                     let temp = {
                       'transaction_id': transIdList[i]['id'],
                       'timestamp': transIdList[i]['created_at'],
@@ -120,10 +120,37 @@ exports.getOutputData = function (req, res) {
                         res.send(data);
                       }
                     }
+                  ) .catch(function (error) {
+                      let data = {
+                        'status': '500',
+                        'data': {
+                          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+                        }
+                      };
+                      res.send(data);
+                    }
                   );
                 }
               }
+            ) .catch(function (error) {
+                let data = {
+                  'status': '500',
+                  'data': {
+                    'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+                  }
+                };
+                res.send(data);
+              }
             );
+          }
+        ).catch(function (error) {
+            let data = {
+              'status': '500',
+              'data': {
+                'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+              }
+            };
+            res.send(data);
           }
         );
       }
