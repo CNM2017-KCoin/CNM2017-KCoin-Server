@@ -111,8 +111,9 @@ exports.getData = function (req, res) {
                 console.log(222222 + TotalTransaction[0]['total_transaction']);
 
                 if (transaction_data.length == TotalTransaction[0]['total_transaction']) {
-
-                  console.log(3333333);
+                  transaction_data.sort(function (a, b) {
+                    return b['created_at'] - a['created_at'];
+                  });
                   let data = {
                     'status': 200,
                     'report': 'Lấy dữ liệu thành công!',
