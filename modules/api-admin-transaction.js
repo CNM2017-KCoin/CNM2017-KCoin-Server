@@ -93,7 +93,6 @@ exports.getData = function (req, res) {
               ]
             ).then(
               function (outputInfo) {
-                console.log(123213213);
                 console.log(outputInfo);
                 let temp = {
                   'transaction_id': transactionIdList[i]['id'],
