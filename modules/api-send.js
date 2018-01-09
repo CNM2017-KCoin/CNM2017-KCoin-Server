@@ -418,7 +418,6 @@ exports.createTransaction = function (req, res) {
               'email': email,
               'transaction_id': transactionInfo.insertId,
               'action': 'create'
-
             };
             let response = [];
             logTransaction.saveLogTransaction(request, response);
