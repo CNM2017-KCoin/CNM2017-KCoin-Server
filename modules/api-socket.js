@@ -272,13 +272,13 @@ ws.onmessage = function (response) {
                               ).then(
                                 function (transactionOutputInfo) {
                                   if (transactionOutputInfo.insertId > 0) {
-                                    /*let request = {
+                                    let request = {
                                       'email': AddressList[h]['email'],
                                       'transaction_id': transactionInfo.insertId,
                                       'action': 'receive'
                                     };
                                     let response = [];
-                                    logTransaction.saveLogTransaction(request, response);*/
+                                    logTransaction.saveLogTransaction(request, response);
                                     // do nothing
                                   }
                                 }
