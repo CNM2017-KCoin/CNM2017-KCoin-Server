@@ -40,6 +40,10 @@ coreApiRoute.post('/find-address', function (req, res) {
   apiUserInfo.findAddress(req, res);
 });
 
+coreApiRoute.post('/find-recent-emails', function (req, res) {
+  apiUserInfo.findRecentEmailList(req, res);
+});
+
 
 coreApiRoute.post('/user-total-info', function (req, res) {
   apiUserInfo.getTotalInfo(req, res);

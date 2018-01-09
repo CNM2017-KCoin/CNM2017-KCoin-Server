@@ -202,7 +202,84 @@ exports.findAddress = function (req, res) {
         let data = {
           'status': '500',
           'data': {
-            'error': 'Đăng nhập thất bại!'
+            'error': 'Email không tồn tại!'
+          }
+        };
+        res.send(data);
+      }
+    }
+  ).catch(function (error) {
+      let data = {
+        'status': '500',
+        'data': {
+          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+        }
+      };
+      res.send(data);
+    }
+  );
+};
+
+exports.findRecentEmailList = function (req, res) {
+  let params = req.body || {};
+  let email = params['email'] || '';
+  let receiver_email = params['receiver_email'] || '';
+  dbHelper.dbLoadSql(
+    `SELECT id 
+    FROM tb_login l
+    WHERE l.email = ?`,
+    [
+      email
+    ]
+  ).then(
+    function (userInfo) {
+      let data = [];
+      if (userInfo[0]['id'] > 0) {
+        dbHelper.dbLoadSql(
+          `SELECT email, address
+          FROM tb_transaction_old l
+          WHERE l.user_id = ?`,
+          [
+            userInfo[0]['id']
+          ]
+        ).then(
+          function (emailListInfo) { 
+            if(emailListInfo.length > 0) {
+              let data = {
+                'status': '200',
+                'data': {
+                  'emailList':emailListInfo,
+                  'report': 'Lấy danh sách email thành công!'
+                }
+              };
+              res.send(data);
+            } else {
+              let data = {
+                'status': '200',
+                'data': {
+                  'emailList':[],
+                  'report': 'Không có email giao dịch gần đây!'
+                }
+              };
+              res.send(data);
+            }
+          }
+        ).catch(function (error) {
+            let data = {
+              'status': '500',
+              'data': {
+                'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+              }
+            };
+            res.send(data);
+          }
+        );
+
+      } else {
+        let data = {
+          'status': '500',
+          'data': {
+            'error': 'Email không tồn tại!'
           }
         };
         res.send(data);
