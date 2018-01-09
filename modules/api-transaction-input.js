@@ -70,6 +70,8 @@ exports.getInputData = function (req, res) {
                   res.send(data);
                 }
                 let receiver_data = [];
+                console.log('it is me' + transactionIdList[0]['id']);
+                console.log('it is me' + transactionIdList[1]['id']);
                 for (let i = 0; i < transactionIdList.length; i++) {
                   dbHelper.dbLoadSql(
                     `SELECT ti.user_id, ti.address, ti.ref_hash, ti.ref_index, ti.amount
@@ -92,6 +94,9 @@ exports.getInputData = function (req, res) {
                       };
                       receiver_data.push(temp);
                       if (receiver_data.length == TotalReceive[0]['total_receive']) {
+                        receiver_data.sort(function (a, b) {
+                          return b['created_at'] - a['created_at'];
+                        });
                         let data = {
                           'status': 200,
                           'report': 'Lấy dữ liệu thành công!',
