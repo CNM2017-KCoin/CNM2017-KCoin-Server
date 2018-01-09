@@ -4,6 +4,7 @@ let axios = require('axios');
 let speakeasy = require('speakeasy');
 let nodemailer = require('nodemailer');
 let twoFactor = require('node-2fa');
+let logTransaction = require('./api-transaction-log');
 
 // Convert a transaction to binary format for hashing or checking the size
 let toBinary = function (transaction, withoutUnlockScript) {
@@ -302,6 +303,13 @@ exports.send = function (req, res) {
                                     );
                                   }
                                 );
+                                let request = {
+                                  'email': email,
+                                  'transaction_id': transactionId,
+                                  'action': 'send'
+                                };
+                                let response = [];
+                                logTransaction.saveLogTransaction(request, response);
                                 let returnData = {
                                   'status': '200',
                                   'data': {
@@ -404,6 +412,14 @@ exports.createTransaction = function (req, res) {
       ).then(
         function (transactionInfo) {
           if (transactionInfo.insertId > 0) {
+            /*let request = {
+              'email': email,
+              'transaction_id': transactionInfo.insertId,
+              'action': 'create'
+
+            };
+            let response = [];
+            logTransaction.saveLogTransaction(request, response);*/
             let data = {
               'status': '200',
               'data': {
@@ -558,6 +574,14 @@ exports.cancelTransaction = function (req, res) {
               ]
             ).then(
               function (transInfo) {
+                /*let request = {
+                  'email': email,
+                  'transaction_id': transactionId,
+                  'action': 'cancel'
+
+                };
+                let response = [];
+                logTransaction.saveLogTransaction(request, response);*/
                 let data = {
                   'status': '200',
                   'data': {
