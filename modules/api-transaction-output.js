@@ -107,7 +107,7 @@ exports.getOutputData = function (req, res) {
                 }
                 if (transactionIdList.length == 0) {
                   sender_data.sort(function (a, b) {
-                    return b['created_at'] - a['created_at'];
+                    return b['id'] - a['id'];
                   });
                   let data = {
                     'status': 200,
@@ -160,7 +160,7 @@ exports.getOutputData = function (req, res) {
                       sender_data.push(temp);
                       if ((sender_data.length == TotalSend[0]['total_send'])) {
                         sender_data.sort(function (a, b) {
-                          return b['created_at'] - a['created_at'];
+                          return b['id'] - a['id'];
                         });
                         let data = {
                           'status': 200,

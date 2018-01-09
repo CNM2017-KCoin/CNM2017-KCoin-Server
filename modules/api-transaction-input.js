@@ -95,7 +95,7 @@ exports.getInputData = function (req, res) {
                       receiver_data.push(temp);
                       if (receiver_data.length == TotalReceive[0]['total_receive']) {
                         receiver_data.sort(function (a, b) {
-                          return b['created_at'] - a['created_at'];
+                          return b['id'] - a['id'];
                         });
                         let data = {
                           'status': 200,

@@ -112,7 +112,7 @@ exports.getData = function (req, res) {
 
                 if (transaction_data.length == TotalTransaction[0]['total_transaction']) {
                   transaction_data.sort(function (a, b) {
-                    return b['created_at'] - a['created_at'];
+                    return b['id'] - a['id'];
                   });
                   let data = {
                     'status': 200,
