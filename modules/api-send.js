@@ -467,11 +467,17 @@ exports.sendValidate = function (req, res) {
       let secret = userInfo[0]['access_token'];
       if (secret) {
         //send email
-        let transporter = nodemailer.createTransport({
+        let transporter = nodemailer.createTransport( {
           service: 'Gmail',
           auth: {
+            type: 'OAuth2',
             user: "vuquangkhtn@gmail.com",
-            pass: "hoilamgi3101"
+            clientId: "347978303221-ae0esf1ucvud2m5g1k9csvt40bkhn2lr.apps.googleusercontent.com",
+            clientSecret: "pSU1AXrZRSSqayy4ulE8xiA6",
+            refreshToken: "1/KEih6qtYQoj4ADp49R1rMXQArsARt2dua6n2eQQ55lA"
+          },
+          tls: {
+              rejectUnauthorized: false
           }
         })
 
@@ -480,13 +486,13 @@ exports.sendValidate = function (req, res) {
           encoding: 'base32'
         });
 
+        console.log(newToken);
         let strContext = "<div>Dear Sir/Madam,</br> You recently used " + email + " to post a transaction by your KCoin Wallet ID. To verify this email address belongs to you, please enter the code below on the verification page: " + newToken + "</div>";
 
         let mailOptions = {
           from: 'vuquangkhtn@gmail.com', // sender address
-          to: "phamductien1417@gmail.com", // list of receivers
+          to: 'phamductien1417@gmail.com', // list of receivers
           subject: 'KCoin Authentication - Verify your email address', // Subject line
-          text: 'You recieved message from ',
           html: strContext, // plain text body
         };
 
@@ -520,6 +526,7 @@ exports.sendValidate = function (req, res) {
       }
     }
   ).catch(function (error) {
+      console.log(error);
       let data = {
         'status': '500',
         'data': {

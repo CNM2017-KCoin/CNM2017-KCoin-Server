@@ -68,11 +68,17 @@ exports.register = function (req, res) {
                   ]
                 ).then(function (wallet) {
                   if (wallet.insertId > 0) {
-                    let transporter = nodemailer.createTransport({
+                    let transporter = nodemailer.createTransport( {
                       service: 'Gmail',
                       auth: {
+                        type: 'OAuth2',
                         user: "vuquangkhtn@gmail.com",
-                        pass: "hoilamgi3101"
+                        clientId: "347978303221-ae0esf1ucvud2m5g1k9csvt40bkhn2lr.apps.googleusercontent.com",
+                        clientSecret: "pSU1AXrZRSSqayy4ulE8xiA6",
+                        refreshToken: "1/KEih6qtYQoj4ADp49R1rMXQArsARt2dua6n2eQQ55lA"
+                      },
+                      tls: {
+                          rejectUnauthorized: false
                       }
                     })
 
