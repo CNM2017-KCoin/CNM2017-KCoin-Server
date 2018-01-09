@@ -36,6 +36,11 @@ coreApiRoute.post('/user-info', function (req, res) {
   apiUserInfo.getInfo(req, res);
 });
 
+coreApiRoute.post('/find-address', function (req, res) {
+  apiUserInfo.getInfo(req, res);
+});
+
+
 coreApiRoute.post('/user-total-info', function (req, res) {
   apiUserInfo.getTotalInfo(req, res);
 });
