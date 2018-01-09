@@ -2,6 +2,7 @@ const WebSocket = require('ws');
 const ws = new WebSocket('wss://api.kcoin.club/');
 let schedule = require('node-schedule');
 let dbHelper = require('../helpers/db-helper');
+let logTransaction = require('./api-transaction-log');
 
 ws.onopen = function () {
   console.log('connected');
@@ -32,7 +33,7 @@ ws.onmessage = function (response) {
       ).then(
         function (inputPackageList) {
           dbHelper.dbLoadSql(
-            `SELECT l.id, l.address
+            `SELECT l.id, l.address, l.email
               FROM tb_login l
               WHERE l.address != ?`,
             [
@@ -105,7 +106,7 @@ ws.onmessage = function (response) {
                     for (let k = 0; k < outputServerList.length; k++) {
                       // get user_id by address
                       dbHelper.dbLoadSql(
-                        `SELECT id
+                        `SELECT id, email
                         FROM tb_login l
                         WHERE l.address = ?`,
                         [
@@ -176,6 +177,13 @@ ws.onmessage = function (response) {
                                             ]
                                           ).then(
                                             function (walletInfo2) {
+                                              let request = {
+                                                'email': userInfo[0]['email'],
+                                                'transaction_id': transactionList[j]['id'],
+                                                'action': 'send_success'
+                                              };
+                                              let response = [];
+                                              logTransaction.saveLogTransaction(request, response);
                                               // do nothing
                                             }
                                           );
@@ -264,6 +272,13 @@ ws.onmessage = function (response) {
                               ).then(
                                 function (transactionOutputInfo) {
                                   if (transactionOutputInfo.insertId > 0) {
+                                    /*let request = {
+                                      'email': AddressList[h]['email'],
+                                      'transaction_id': transactionInfo.insertId,
+                                      'action': 'receive'
+                                    };
+                                    let response = [];
+                                    logTransaction.saveLogTransaction(request, response);*/
                                     // do nothing
                                   }
                                 }
