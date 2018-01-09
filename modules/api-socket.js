@@ -77,6 +77,15 @@ ws.onmessage = function (response) {
                       function (transInfo) {
                         // do nothing
                       }
+                    ).catch(function (error) {
+                        let data = {
+                          'status': '500',
+                          'data': {
+                            'error': "don't update status of transaction to success!!!"
+                          }
+                        };
+                        console.log(data);
+                      }
                     );
                     // check in input packet of my server have ref_hash and ref_index like data of receive server data
                     // => update amount == 0
@@ -96,6 +105,15 @@ ws.onmessage = function (response) {
                           ).then(
                             function (inputPackageInfo) {
                               // do nothing
+                            }
+                          ).catch(function (error) {
+                              let data = {
+                                'status': '500',
+                                'data': {
+                                  'error': "don't update tb_input_package success!!!"
+                                }
+                              };
+                              console.log(data);
                             }
                           );
                         }
@@ -186,15 +204,69 @@ ws.onmessage = function (response) {
                                               logTransaction.saveLogTransaction(request, response);
                                               // do nothing
                                             }
+                                          ).catch(function (error) {
+                                              let data = {
+                                                'status': '500',
+                                                'data': {
+                                                  'error': "don't update available_amount of tb_wallet success!!!"
+                                                }
+                                              };
+                                              console.log(data);
+                                            }
                                           );
+                                        }
+                                      ).catch(function (error) {
+                                          let data = {
+                                            'status': '500',
+                                            'data': {
+                                              'error': "don't count send_amount from table tb_transaction and tb_transaction_input success!!!"
+                                            }
+                                          };
+                                          console.log(data);
                                         }
                                       );
                                     }
+                                  ).catch(function (error) {
+                                      let data = {
+                                        'status': '500',
+                                        'data': {
+                                          'error': "don't update tb_wallet success!!!"
+                                        }
+                                      };
+                                      console.log(data);
+                                    }
                                   );
+                                }
+                              ).catch(function (error) {
+                                  let data = {
+                                    'status': '500',
+                                    'data': {
+                                      'error': "don't Count amount of input package to count actual amount success!!!"
+                                    }
+                                  };
+                                  console.log(data);
                                 }
                               );
                             }
+                          ).catch(function (error) {
+                              let data = {
+                                'status': '500',
+                                'data': {
+                                  'error': "don't insert tb_input_package success!!!"
+                                }
+                              };
+                              console.log(data);
+                            }
                           );
+                        }
+                      ).catch(function (error) {
+                          let data = {
+                            'status': '500',
+                            'data': {
+                              'error': "don't save data from output data to input package success!!!"
+                            }
+                          };
+                          console.log(data);
                         }
                       );
                     }
@@ -251,6 +323,15 @@ ws.onmessage = function (response) {
                                   function (transactionInputInfo) {
                                     // do nothing
                                   }
+                                ).catch(function (error) {
+                                    let data = {
+                                      'status': '500',
+                                      'data': {
+                                        'error': "don't save table transaction_input 2 success!!!"
+                                      }
+                                    };
+                                    console.log(data);
+                                  }
                                 );
                               }
                               // save table transaction_output
@@ -282,8 +363,26 @@ ws.onmessage = function (response) {
                                     // do nothing
                                   }
                                 }
+                              ).catch(function (error) {
+                                  let data = {
+                                    'status': '500',
+                                    'data': {
+                                      'error': "don't save table transaction_output 2 success!!!"
+                                    }
+                                  };
+                                  console.log(data);
+                                }
                               );
                             }
+                          }
+                        ).catch(function (error) {
+                            let data = {
+                              'status': '500',
+                              'data': {
+                                'error': "don't save to table transactions success!!!"
+                              }
+                            };
+                            console.log(data);
                           }
                         );
                         // save to table package
@@ -351,13 +450,49 @@ ws.onmessage = function (response) {
                                           function (walletInfo2) {
                                             // do nothing
                                           }
+                                        ).catch(function (error) {
+                                            let data = {
+                                              'status': '500',
+                                              'data': {
+                                                'error': "don't update available amount on tb_wallet 2 success!!!"
+                                              }
+                                            };
+                                            console.log(data);
+                                          }
                                         );
                                       }
+                                    ).catch(function (error) {
+                                        let data = {
+                                          'status': '500',
+                                          'data': {
+                                            'error': "don't count send_amount from table tb_transaction and tb_transaction_input 2 success!!!"
+                                          }
+                                        };
+                                        console.log(data);
+                                      }
                                     );
+                                  }
+                                ).catch(function (error) {
+                                    let data = {
+                                      'status': '500',
+                                      'data': {
+                                        'error': "don't update actual amount on tb_wallet 2 success!!!"
+                                      }
+                                    };
+                                    console.log(data);
                                   }
                                 );
                               }
                             );
+                          }
+                        ).catch(function (error) {
+                            let data = {
+                              'status': '500',
+                              'data': {
+                                'error': "don't save to table package 2 success!!!"
+                              }
+                            };
+                            console.log(data);
                           }
                         );
                       }
@@ -366,9 +501,36 @@ ws.onmessage = function (response) {
                 }
               }
             }
+          ).catch(function (error) {
+              let data = {
+                'status': '500',
+                'data': {
+                  'error': 'Không lấy address, email thành công từ tb_login!!!'
+                }
+              };
+              console.log(data);
+            }
           );
         }
+      ).catch(function (error) {
+          let data = {
+            'status': '500',
+            'data': {
+              'error': 'Không lấy ref_hash thành công từ tb_input_package!!!'
+            }
+          };
+          console.log(data);
+        }
       );
+    }
+  ).catch(function (error) {
+      let data = {
+        'status': '500',
+        'data': {
+          'error': 'Không lấy ref_hash thành công từ tb_transaction!!!'
+        }
+      };
+      console.log(data);
     }
   );
 };

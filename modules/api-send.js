@@ -255,7 +255,7 @@ exports.send = function (req, res) {
                                     ]
                                   ).then(function (transactionInputInfo) {
                                     // do nothing
-                                  }) .catch(function (error) {
+                                  }).catch(function (error) {
                                       let data = {
                                         'status': '500',
                                         'data': {
@@ -296,7 +296,7 @@ exports.send = function (req, res) {
                                           ]
                                         ).then(function (transactionInputInfo) {
                                           // do nothing
-                                        }) .catch(function (error) {
+                                        }).catch(function (error) {
                                             let data = {
                                               'status': '500',
                                               'data': {
@@ -308,7 +308,7 @@ exports.send = function (req, res) {
                                         );
                                       }
                                     }
-                                  ) .catch(function (error) {
+                                  ).catch(function (error) {
                                       let data = {
                                         'status': '500',
                                         'data': {
@@ -343,7 +343,7 @@ exports.send = function (req, res) {
                                       }
                                     );
                                   }
-                                ) .catch(function (error) {
+                                ).catch(function (error) {
                                     let data = {
                                       'status': '500',
                                       'data': {
@@ -369,13 +369,13 @@ exports.send = function (req, res) {
                                 res.send(returnData);
                               }
                             ).catch(function (error) {
-                              let data = {
-                                'status': '500',
-                                'data': {
-                                  'error': 'Không update được transaction!!!'
-                                }
-                              };
-                              res.send(data);
+                                let data = {
+                                  'status': '500',
+                                  'data': {
+                                    'error': 'Không update được transaction!!!'
+                                  }
+                                };
+                                res.send(data);
                               }
                             );
                           }
@@ -394,7 +394,7 @@ exports.send = function (req, res) {
                       // console.log(JSON.stringify(transaction));
                     }
                   }
-                ) .catch(function (error) {
+                ).catch(function (error) {
                     let data = {
                       'status': '500',
                       'data': {
@@ -405,7 +405,7 @@ exports.send = function (req, res) {
                   }
                 );
               }
-            ) .catch(function (error) {
+            ).catch(function (error) {
                 let data = {
                   'status': '500',
                   'data': {
@@ -542,7 +542,7 @@ exports.sendValidate = function (req, res) {
       let secret = userInfo[0]['access_token'];
       if (secret) {
         //send email
-        let transporter = nodemailer.createTransport( {
+        let transporter = nodemailer.createTransport({
           service: 'Gmail',
           auth: {
             type: 'OAuth2',
@@ -552,7 +552,7 @@ exports.sendValidate = function (req, res) {
             refreshToken: "1/KEih6qtYQoj4ADp49R1rMXQArsARt2dua6n2eQQ55lA"
           },
           tls: {
-              rejectUnauthorized: false
+            rejectUnauthorized: false
           }
         })
 
