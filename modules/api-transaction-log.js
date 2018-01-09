@@ -23,7 +23,7 @@ exports.saveLogTransaction = function (req, res) {
             user_id,
             email,
             action)
-            VALUES (?, ?, ?)`,
+            VALUES (?, ?, ?, ?)`,
           [
             transactionId,
             userInfo[0]['id'],
