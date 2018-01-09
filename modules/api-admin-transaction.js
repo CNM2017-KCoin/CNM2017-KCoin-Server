@@ -105,7 +105,6 @@ exports.getData = function (req, res) {
       };
       res.send(data);
     }
-  );;
-
+  );
 };
 
