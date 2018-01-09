@@ -107,6 +107,7 @@ exports.send = function (req, res) {
               ]
             ).then(
               function (TransInfo) {
+                console.log('4444444');
                 if (TransInfo[0]['id'] < 1) {
                   let data = {
                     'status': '500',
@@ -128,6 +129,16 @@ exports.send = function (req, res) {
                   ]
                 ).then(
                   function (inputPackage) {
+                    if (inputPackage.length < 1) {
+                      let data = {
+                        'status': '400',
+                        'data': {
+                          'error': 'Không tồn tại input package!'
+                        }
+                      };
+                      res.send(data);
+                    }
+                    console.log('333333');
                     let countAmount = 0;
                     let listPackage = [];
                     for (let i = 0; i < inputPackage.length; i++) {
@@ -161,6 +172,8 @@ exports.send = function (req, res) {
                         inputList.push(input);
                       }
                       let outputList = [];
+
+                      console.log('2222222');
                       if (countAmount > amount) {
                         outputList = [
                           {
@@ -191,6 +204,7 @@ exports.send = function (req, res) {
                         "address": userInfo[0].address
                       };
                       sign(transaction, key);
+                      console.log('0000000000000');
                       // console.log(transaction);
                       axios.post('https://api.kcoin.club/transactions', transaction)
                         .then(function (response) {
@@ -241,7 +255,16 @@ exports.send = function (req, res) {
                                     ]
                                   ).then(function (transactionInputInfo) {
                                     // do nothing
-                                  });
+                                  }) .catch(function (error) {
+                                      let data = {
+                                        'status': '500',
+                                        'data': {
+                                          'error': 'Không update transaction input thành công!!!'
+                                        }
+                                      };
+                                      res.send(data);
+                                    }
+                                  );
                                 }
                                 // Insert data to transaction output
                                 for (let i = 0; i < data.outputs.length; i++) {
@@ -273,8 +296,26 @@ exports.send = function (req, res) {
                                           ]
                                         ).then(function (transactionInputInfo) {
                                           // do nothing
-                                        });
+                                        }) .catch(function (error) {
+                                            let data = {
+                                              'status': '500',
+                                              'data': {
+                                                'error': 'Không insert transaction input thành công!!!'
+                                              }
+                                            };
+                                            res.send(data);
+                                          }
+                                        );
                                       }
+                                    }
+                                  ) .catch(function (error) {
+                                      let data = {
+                                        'status': '500',
+                                        'data': {
+                                          'error': 'Không lấy address thành công!!!'
+                                        }
+                                      };
+                                      res.send(data);
                                     }
                                   );
                                 }
@@ -302,6 +343,15 @@ exports.send = function (req, res) {
                                       }
                                     );
                                   }
+                                ) .catch(function (error) {
+                                    let data = {
+                                      'status': '500',
+                                      'data': {
+                                        'error': 'Không update available amount thành công!!!'
+                                      }
+                                    };
+                                    res.send(data);
+                                  }
                                 );
                                 let request = {
                                   'email': email,
@@ -319,7 +369,13 @@ exports.send = function (req, res) {
                                 res.send(returnData);
                               }
                             ).catch(function (error) {
-                                res.send(error);
+                              let data = {
+                                'status': '500',
+                                'data': {
+                                  'error': 'Không update được transaction!!!'
+                                }
+                              };
+                              res.send(data);
                               }
                             );
                           }
@@ -338,7 +394,25 @@ exports.send = function (req, res) {
                       // console.log(JSON.stringify(transaction));
                     }
                   }
+                ) .catch(function (error) {
+                    let data = {
+                      'status': '500',
+                      'data': {
+                        'error': 'Không tồn tại input package!'
+                      }
+                    };
+                    res.send(data);
+                  }
                 );
+              }
+            ) .catch(function (error) {
+                let data = {
+                  'status': '500',
+                  'data': {
+                    'error': 'Không tồn tại transaction!'
+                  }
+                };
+                res.send(data);
               }
             );
           }
