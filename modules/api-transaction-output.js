@@ -110,16 +110,16 @@ exports.getOutputData = function (req, res) {
                     ]
                   ).then(
                     function (outputInfo) {
-                      if (outputInfo.length == 0) {
+                      if (outputInfo.length < 1) {
                         let data = {
                           'status': 200,
                           'report': 'Không tồn tại giao dịch!',
                           'data': {
                             'total_sender_trans': 0,
-                            'sender_trans': []
-                          },
-                          'limit': 10,
-                          'offset': offset
+                            'sender_trans': [],
+                            'limit': 10,
+                            'offset': offset
+                          }
                         };
                         res.send(data);
                       }
@@ -145,15 +145,6 @@ exports.getOutputData = function (req, res) {
                         };
                         res.send(data);
                       }
-                    }
-                  ) .catch(function (error) {
-                      let data = {
-                        'status': '500',
-                        'data': {
-                          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại 4!'
-                        }
-                      };
-                      res.send(data);
                     }
                   );
                 }
