@@ -394,7 +394,7 @@ exports.sendValidate = function (req, res) {
             let data = {
               'status': '500',
               'data': {
-                'error': 'Gửi email thất bại... Vui lòng thử lại!'
+                'error': error
               }
             };
             res.send(data);
