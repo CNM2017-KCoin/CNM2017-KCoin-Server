@@ -5,7 +5,7 @@ let dbHelper = require('../helpers/db-helper');
 let logTransaction = require('./api-transaction-log');
 
 ws.onopen = function () {
-  // console.log('connected');
+  console.log('connected');
 };
 
 ws.onmessage = function (response) {

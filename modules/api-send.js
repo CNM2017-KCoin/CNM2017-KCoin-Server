@@ -68,7 +68,7 @@ exports.send = function (req, res) {
   let transactionId = params['transaction_id'] || '';
 
   dbHelper.dbLoadSql(
-    `SELECT id, password, public_key, private_key, address, access_token
+    `SELECT id, password, public_key, private_key, address, access_token, email
     FROM tb_login l
     WHERE l.email = ?`,
     [
@@ -320,6 +320,10 @@ exports.send = function (req, res) {
                                   );
                                 }
                                 // Update available amount
+                                let id = 2;
+                                let email = 'ad@gmail.com';
+                                let address = 'ad@gmail.com';
+                                let receiver_address = "996b34c658a088ecc2ee72a12e8a6aca4b714c729d0d76d4db5409c08003f3dd";
                                 dbHelper.dbLoadSql(
                                   `SELECT actual_amount
                                   FROM tb_wallet w
@@ -366,6 +370,127 @@ exports.send = function (req, res) {
                                     'report': 'Giao dịch thành công!'
                                   }
                                 };
+                                // Save transaction old
+                                dbHelper.dbLoadSql(
+                                  `SELECT id, email, address
+                                  FROM tb_login l
+                                  WHERE l.address = ?`,
+                                  [
+                                    receiver_address
+                                  ]
+                                ).then(
+                                  function (oldUserInfo) {
+                                    if (oldUserInfo[0]['id'] < 1) {
+                                      let data = {
+                                        'status': '500',
+                                        'data': {
+                                          'error': "Address không thuộc hệ thống!"
+                                        }
+                                      };
+                                      console.log(data);
+                                    }
+                                    dbHelper.dbLoadSql(
+                                      `SELECT COUNT(tto.id) as total
+                                      FROM tb_transaction_old tto
+                                      WHERE tto.user_id = ?
+                                      AND tto.old_id = ?`,
+                                      [
+                                        userInfo[0]['id'],
+                                        oldUserInfo[0]['id']
+                                      ]
+                                    ).then(
+                                      function (oldTransactionInfo) {
+                                        if (oldTransactionInfo[0]['total'] > 0) {
+                                          // do nothing
+                                          console.log('do nothing');
+                                        } else {
+                                          dbHelper.dbLoadSql(
+                                            `INSERT INTO tb_transaction_old (
+                                            user_id, 
+                                            old_id,
+                                            old_email,
+                                            old_address)
+                                            VALUES (?, ?, ?, ?)`,
+                                            [
+                                              id,
+                                              oldUserInfo[0]['id'],
+                                              oldUserInfo[0]['email'],
+                                              oldUserInfo[0]['address'],
+                                            ]
+                                          ).then(
+                                            function (oldTransactionInfo2) {
+                                              if (oldTransactionInfo2.insertId > 0) {
+                                                dbHelper.dbLoadSql(
+                                                  `INSERT INTO tb_transaction_old (
+                                                  user_id, 
+                                                  old_id,
+                                                  old_email,
+                                                  old_address)
+                                                  VALUES (?, ?, ?, ?)`,
+                                                  [
+                                                    oldUserInfo[0]['id'],
+                                                    userInfo[0]['id'],
+                                                    userInfo[0]['email'],
+                                                    userInfo[0]['address'],
+                                                  ]
+                                                ).then(
+                                                  function (oldTransactionInfo2) {
+                                                    if (oldTransactionInfo2.insertId > 0) {
+                                                      // do nothing
+                                                      let data = {
+                                                        'status': '200',
+                                                        'data': {
+                                                          'report': "OK!!!"
+                                                        }
+                                                      };
+                                                      console.log(data);
+                                                    }
+                                                  }
+                                                ).catch(function (error) {
+                                                    let data = {
+                                                      'status': '500',
+                                                      'data': {
+                                                        'error': "Lỗi!"
+                                                      }
+                                                    };
+                                                    console.log(data);
+                                                  }
+                                                );
+                                              }
+                                            }
+                                          ).catch(function (error) {
+                                              let data = {
+                                                'status': '500',
+                                                'data': {
+                                                  'error': "Lỗi!!!"
+                                                }
+                                              };
+                                              console.log(data);
+                                            }
+                                          );
+                                        }
+                                      }
+                                    ).catch(function (error) {
+                                        let data = {
+                                          'status': '500',
+                                          'data': {
+                                            'error': "Address không thuộc hệ thống!!!"
+                                          }
+                                        };
+                                        console.log(data);
+                                      }
+                                    );
+                                  }
+                                ).catch(function (error) {
+                                    let data = {
+                                      'status': '500',
+                                      'data': {
+                                        'error': "Address không thuộc hệ thống!!!"
+                                      }
+                                    };
+                                    console.log(data);
+                                  }
+                                );
                                 res.send(returnData);
                               }
                             ).catch(function (error) {
