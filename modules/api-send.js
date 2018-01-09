@@ -412,14 +412,14 @@ exports.createTransaction = function (req, res) {
       ).then(
         function (transactionInfo) {
           if (transactionInfo.insertId > 0) {
-            /*let request = {
+            let request = {
               'email': email,
               'transaction_id': transactionInfo.insertId,
               'action': 'create'
 
             };
             let response = [];
-            logTransaction.saveLogTransaction(request, response);*/
+            logTransaction.saveLogTransaction(request, response);
             let data = {
               'status': '200',
               'data': {
