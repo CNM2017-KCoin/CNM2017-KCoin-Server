@@ -3,6 +3,7 @@ let utils = require('../helpers/utils.js');
 let axios = require('axios');
 let speakeasy = require('speakeasy');
 let nodemailer = require('nodemailer');
+var xoauth2 = require('xoauth2');
 let twoFactor = require('node-2fa');
 
 // Convert a transaction to binary format for hashing or checking the size
@@ -451,16 +452,18 @@ exports.sendValidate = function (req, res) {
       let secret = userInfo[0]['access_token'];
       if (secret) {
         //send email
-        let transporter = nodemailer.createTransport({
+        let transporter = nodemailer.createTransport( {
           service: 'Gmail',
-          XOAuth2: {
-            user: "vuquangkhtn@gmail.com", // Your gmail address.
-                                                  // Not @developer.gserviceaccount.com
-            clientId: "347978303221-ae0esf1ucvud2m5g1k9csvt40bkhn2lr.apps.googleusercontent.com",
-            clientSecret: "pSU1AXrZRSSqayy4ulE8xiA6",
-            refreshToken: "1/oPM1V4LSQVYcV-LsEsjBzBwpPTI3LXy1-Jx3ytN5tB2VbhMhXcvyaVkdCgG_Kg7C"
+          auth: {
+            XOAuth2: {
+              user: "vuquangkhtn@gmail.com",
+              clientId: "347978303221-ae0esf1ucvud2m5g1k9csvt40bkhn2lr.apps.googleusercontent.com",
+              clientSecret: "pSU1AXrZRSSqayy4ulE8xiA6",
+              refreshToken: "1/oPM1V4LSQVYcV-LsEsjBzBwpPTI3LXy1-Jx3ytN5tB2VbhMhXcvyaVkdCgG_Kg7C"
+            }
           }
         })
+        console.log(11111);
 
         let newToken = speakeasy.totp({
           secret: secret.base32,
@@ -507,6 +510,7 @@ exports.sendValidate = function (req, res) {
       }
     }
   ).catch(function (error) {
+      console.log(error);
       let data = {
         'status': '500',
         'data': {
