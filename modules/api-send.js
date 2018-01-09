@@ -453,9 +453,12 @@ exports.sendValidate = function (req, res) {
         //send email
         let transporter = nodemailer.createTransport({
           service: 'Gmail',
-          auth: {
-            user: "vuquangkhtn@gmail.com",
-            pass: "hoilamgi3101"
+          XOAuth2: {
+            user: "vuquangkhtn@gmail.com", // Your gmail address.
+                                                  // Not @developer.gserviceaccount.com
+            clientId: "347978303221-ae0esf1ucvud2m5g1k9csvt40bkhn2lr.apps.googleusercontent.com",
+            clientSecret: "pSU1AXrZRSSqayy4ulE8xiA6",
+            refreshToken: "1/oPM1V4LSQVYcV-LsEsjBzBwpPTI3LXy1-Jx3ytN5tB2VbhMhXcvyaVkdCgG_Kg7C"
           }
         })
 
