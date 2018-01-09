@@ -77,7 +77,189 @@ ws.onmessage = function (response) {
                       ]
                     ).then(
                       function (transInfo) {
-                        // do nothing
+                        // check in input packet of my server have ref_hash and ref_index like data of receive server data
+                        // => update amount == 0
+                        let inputServerList = transactionServerList[i].inputs;
+                        for (let k = 0; k < inputPackageList.length; k++) {
+                          for (let h = 0; h < inputServerList.length; h++) {
+                            if (inputServerList[h]['referencedOutputHash'] == inputPackageList[k]['ref_hash']
+                              && inputServerList[h]['referencedOutputIndex'] == inputPackageList[k]['ref_index']) {
+                              dbHelper.dbLoadSql(
+                                `UPDATE tb_input_package
+                            SET amount = ?
+                            WHERE id = ?`,
+                                [
+                                  0,
+                                  inputPackageList[k]['id']
+                                ]
+                              ).then(
+                                function (inputPackageInfo) {
+                                  // do nothing
+                                }
+                              ).catch(function (error) {
+                                  let data = {
+                                    'status': '500',
+                                    'data': {
+                                      'error': "don't update tb_input_package success!!!"
+                                    }
+                                  };
+                                  // console.log(data);
+                                }
+                              );
+                            }
+                          }
+                        }
+                        // get ref_hash, ref_index in output of reiceive server data to save on my server
+                        let outputServerList = transactionServerList[i].outputs;
+                        for (let k = 0; k < outputServerList.length; k++) {
+                          // get user_id by address
+                          dbHelper.dbLoadSql(
+                            `SELECT id, email
+                        FROM tb_login l
+                        WHERE l.address = ?`,
+                            [
+                              outputServerList[k]['lockScript'].substr(4, outputServerList[k]['lockScript'].length)
+                            ]
+                          ).then(
+                            // save data from output data to input package
+                            function (userInfo) {
+                              dbHelper.dbLoadSql(
+                                `INSERT INTO tb_input_package (
+                            user_id, 
+                            ref_hash,
+                            ref_index,
+                            amount)
+                            VALUES (?, ?, ?, ?)`,
+                                [
+                                  userInfo[0]['id'],
+                                  transactionServerList[i].hash,
+                                  k,
+                                  outputServerList[k]['value']
+                                ]
+                              ).then(
+                                function (inputPackInfo) {
+                                  // Count amount of input package to count actual amount
+                                  dbHelper.dbLoadSql(
+                                    `SELECT SUM(ip.amount) as total_actual_amount
+                                FROM tb_input_package ip
+                                WHERE ip.user_id = ?
+                                AND ip.amount != ?`,
+                                    [
+                                      userInfo[0]['id'],
+                                      0
+                                    ]
+                                  ).then(
+                                    function (actualAmountInfo) {
+                                      // update actual amount on tb_wallet
+                                      dbHelper.dbLoadSql(
+                                        `UPDATE tb_wallet
+                                    SET actual_amount = ?
+                                    WHERE user_id = ?`,
+                                        [
+                                          actualAmountInfo[0]['total_actual_amount'],
+                                          userInfo[0]['id']
+                                        ]
+                                      ).then(
+                                        function (walletInfo) {
+                                          // count send_amount from table tb_transaction and tb_transaction_input
+                                          dbHelper.dbLoadSql(
+                                            `SELECT SUM(t.send_amount) as total_send_amount
+                                        FROM tb_transaction t
+                                        LEFT JOIN tb_transaction_input ti ON t.id = ti.transaction_id
+                                        WHERE t.status = ?
+                                        AND ti.user_id = ?`,
+                                            [
+                                              'waiting',
+                                              userInfo[0]['id']
+                                            ]
+                                          ).then(
+                                            function (sendAmountInfo) {
+                                              // update available amount on tb_wallet
+                                              dbHelper.dbLoadSql(
+                                                `UPDATE tb_wallet
+                                            SET	available_amount = ?
+                                            WHERE user_id = ?`,
+                                                [
+                                                  actualAmountInfo[0]['total_actual_amount'] - sendAmountInfo[0]['total_send_amount'],
+                                                  userInfo[0]['id']
+                                                ]
+                                              ).then(
+                                                function (walletInfo2) {
+                                                  let request = {
+                                                    'email': userInfo[0]['email'],
+                                                    'transaction_id': transactionList[j]['id'],
+                                                    'action': 'send_success'
+                                                  };
+                                                  let response = [];
+                                                  logTransaction.saveLogTransaction(request, response);
+                                                  // do nothing
+                                                }
+                                              ).catch(function (error) {
+                                                  let data = {
+                                                    'status': '500',
+                                                    'data': {
+                                                      'error': "don't update available_amount of tb_wallet success!!!"
+                                                    }
+                                                  };
+                                                  // console.log(data);
+                                                }
+                                              );
+                                            }
+                                          ).catch(function (error) {
+                                              let data = {
+                                                'status': '500',
+                                                'data': {
+                                                  'error': "don't count send_amount from table tb_transaction and tb_transaction_input success!!!"
+                                                }
+                                              };
+                                              // console.log(data);
+                                            }
+                                          );
+                                        }
+                                      ).catch(function (error) {
+                                          let data = {
+                                            'status': '500',
+                                            'data': {
+                                              'error': "don't update tb_wallet success!!!"
+                                            }
+                                          };
+                                          // console.log(data);
+                                        }
+                                      );
+                                    }
+                                  ).catch(function (error) {
+                                      let data = {
+                                        'status': '500',
+                                        'data': {
+                                          'error': "don't Count amount of input package to count actual amount success!!!"
+                                        }
+                                      };
+                                      // console.log(data);
+                                    }
+                                  );
+                                }
+                              ).catch(function (error) {
+                                  let data = {
+                                    'status': '500',
+                                    'data': {
+                                      'error': "don't insert tb_input_package success!!!"
+                                    }
+                                  };
+                                  // console.log(data);
+                                }
+                              );
+                            }
+                          ).catch(function (error) {
+                              let data = {
+                                'status': '500',
+                                'data': {
+                                  'error': "don't save data from output data to input package success!!!"
+                                }
+                              };
+                              // console.log(data);
+                            }
+                          );
+                        }
                       }
                     ).catch(function (error) {
                         let data = {
@@ -89,189 +271,6 @@ ws.onmessage = function (response) {
                         // console.log(data);
                       }
                     );
-                    // check in input packet of my server have ref_hash and ref_index like data of receive server data
-                    // => update amount == 0
-                    let inputServerList = transactionServerList[i].inputs;
-                    for (let k = 0; k < inputPackageList.length; k++) {
-                      for (let h = 0; h < inputServerList.length; h++) {
-                        if (inputServerList[h]['referencedOutputHash'] == inputPackageList[k]['ref_hash']
-                          && inputServerList[h]['referencedOutputIndex'] == inputPackageList[k]['ref_index']) {
-                          dbHelper.dbLoadSql(
-                            `UPDATE tb_input_package
-                            SET amount = ?
-                            WHERE id = ?`,
-                            [
-                              0,
-                              inputPackageList[k]['id']
-                            ]
-                          ).then(
-                            function (inputPackageInfo) {
-                              // do nothing
-                            }
-                          ).catch(function (error) {
-                              let data = {
-                                'status': '500',
-                                'data': {
-                                  'error': "don't update tb_input_package success!!!"
-                                }
-                              };
-                              // console.log(data);
-                            }
-                          );
-                        }
-                      }
-                    }
-                    // get ref_hash, ref_index in output of reiceive server data to save on my server
-                    let outputServerList = transactionServerList[i].outputs;
-                    for (let k = 0; k < outputServerList.length; k++) {
-                      // get user_id by address
-                      dbHelper.dbLoadSql(
-                        `SELECT id, email
-                        FROM tb_login l
-                        WHERE l.address = ?`,
-                        [
-                          outputServerList[k]['lockScript'].substr(4, outputServerList[k]['lockScript'].length)
-                        ]
-                      ).then(
-                        // save data from output data to input package
-                        function (userInfo) {
-                          dbHelper.dbLoadSql(
-                            `INSERT INTO tb_input_package (
-                            user_id, 
-                            ref_hash,
-                            ref_index,
-                            amount)
-                            VALUES (?, ?, ?, ?)`,
-                            [
-                              userInfo[0]['id'],
-                              transactionServerList[i].hash,
-                              k,
-                              outputServerList[k]['value']
-                            ]
-                          ).then(
-                            function (inputPackInfo) {
-                              // Count amount of input package to count actual amount
-                              dbHelper.dbLoadSql(
-                                `SELECT SUM(ip.amount) as total_actual_amount
-                                FROM tb_input_package ip
-                                WHERE ip.user_id = ?
-                                AND ip.amount != ?`,
-                                [
-                                  userInfo[0]['id'],
-                                  0
-                                ]
-                              ).then(
-                                function (actualAmountInfo) {
-                                  // update actual amount on tb_wallet
-                                  dbHelper.dbLoadSql(
-                                    `UPDATE tb_wallet
-                                    SET actual_amount = ?
-                                    WHERE user_id = ?`,
-                                    [
-                                      actualAmountInfo[0]['total_actual_amount'],
-                                      userInfo[0]['id']
-                                    ]
-                                  ).then(
-                                    function (walletInfo) {
-                                      // count send_amount from table tb_transaction and tb_transaction_input
-                                      dbHelper.dbLoadSql(
-                                        `SELECT SUM(t.send_amount) as total_send_amount
-                                        FROM tb_transaction t
-                                        LEFT JOIN tb_transaction_input ti ON t.id = ti.transaction_id
-                                        WHERE t.status = ?
-                                        AND ti.user_id = ?`,
-                                        [
-                                          'waiting',
-                                          userInfo[0]['id']
-                                        ]
-                                      ).then(
-                                        function (sendAmountInfo) {
-                                          // update available amount on tb_wallet
-                                          dbHelper.dbLoadSql(
-                                            `UPDATE tb_wallet
-                                            SET	available_amount = ?
-                                            WHERE user_id = ?`,
-                                            [
-                                              actualAmountInfo[0]['total_actual_amount'] - sendAmountInfo[0]['total_send_amount'],
-                                              userInfo[0]['id']
-                                            ]
-                                          ).then(
-                                            function (walletInfo2) {
-                                              let request = {
-                                                'email': userInfo[0]['email'],
-                                                'transaction_id': transactionList[j]['id'],
-                                                'action': 'send_success'
-                                              };
-                                              let response = [];
-                                              logTransaction.saveLogTransaction(request, response);
-                                              // do nothing
-                                            }
-                                          ).catch(function (error) {
-                                              let data = {
-                                                'status': '500',
-                                                'data': {
-                                                  'error': "don't update available_amount of tb_wallet success!!!"
-                                                }
-                                              };
-                                              // console.log(data);
-                                            }
-                                          );
-                                        }
-                                      ).catch(function (error) {
-                                          let data = {
-                                            'status': '500',
-                                            'data': {
-                                              'error': "don't count send_amount from table tb_transaction and tb_transaction_input success!!!"
-                                            }
-                                          };
-                                          // console.log(data);
-                                        }
-                                      );
-                                    }
-                                  ).catch(function (error) {
-                                      let data = {
-                                        'status': '500',
-                                        'data': {
-                                          'error': "don't update tb_wallet success!!!"
-                                        }
-                                      };
-                                      // console.log(data);
-                                    }
-                                  );
-                                }
-                              ).catch(function (error) {
-                                  let data = {
-                                    'status': '500',
-                                    'data': {
-                                      'error': "don't Count amount of input package to count actual amount success!!!"
-                                    }
-                                  };
-                                  // console.log(data);
-                                }
-                              );
-                            }
-                          ).catch(function (error) {
-                              let data = {
-                                'status': '500',
-                                'data': {
-                                  'error': "don't insert tb_input_package success!!!"
-                                }
-                              };
-                              // console.log(data);
-                            }
-                          );
-                        }
-                      ).catch(function (error) {
-                          let data = {
-                            'status': '500',
-                            'data': {
-                              'error': "don't save data from output data to input package success!!!"
-                            }
-                          };
-                          // console.log(data);
-                        }
-                      );
-                    }
                   }
                 }
               }
