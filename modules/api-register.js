@@ -174,25 +174,25 @@ exports.userValidate = function (req, res) {
             res.send(data);
           } else {
             dbHelper.dbLoadSql(
-            `UPDATE tb_login
-            SET status = ?
-            WHERE email = ?`,
-            [
-              1,
-              email
-            ]
-          ).then(
-            function (transInfo) {
-              
-            let data = {
-              'status': '200',
-              'data': {
-                'report': 'Kích hoạt thành công!'
+              `UPDATE tb_login
+              SET status = ?
+              WHERE email = ?`,
+              [
+                1,
+                email
+              ]
+            ).then(
+              function (transInfo) {
+                
+              let data = {
+                'status': '200',
+                'data': {
+                  'report': 'Kích hoạt thành công!'
+                }
+              };
+              res.send(data);
               }
-            };
-            res.send(data);
-            }
-          );    
+            );    
           }          
         } else {
           let data = {
@@ -206,51 +206,4 @@ exports.userValidate = function (req, res) {
       }
     );
   }
-
-  // let newToken = twoFactor.generateToken(newSecret.secret);
-  // // { token: '630618' } 
-   
-  // // twoFactor.verifyToken('XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W', '765075');
-  // // // { delta: 0 } 
-   
-  // // twoFactor.verifyToken('XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W', '00');
-
-  // //send email
-  // let transporter = nodemailer.createTransport({
-  //   service: 'Gmail',
-  //   auth: {
-  //     user: "vuquangkhtn@gmail.com",
-  //     pass: "hoilamgi3101"
-  //   }
-  // })
-
-  // let strContext = "<div>Dear Sir/Madam,</br> You recently added "+email+" as your new KCoin Wallet ID. To verify this email address belongs to you, please enter the code below on the email verification page:</br> " + newToken +"</div>";
-
-  // let mailOptions = {
-  //       from: '"KCoin Wallet Admin" <vuquangkhtn@gmail.com>', // sender address
-  //       to: email, // list of receivers
-  //       subject: 'KCoin Authentication - Verify your email addres', // Subject line
-  //       html: strContext, // plain text body
-  //   };
-
-  // transporter.sendMail(mailOptions,(error, info) => {
-
-  //   if (error) {
-  //     let data = {
-  //       'status': '500',
-  //       'data': {
-  //         'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
-  //       }
-  //     };
-  //     res.send(data);
-  //   } else {
-  //     let data = {
-  //       'status': '200',
-  //       'data': {
-  //         'report': 'Gửi mail xác nhận thành công!'
-  //       }
-  //     };
-  //     res.send(data);
-  //   }
-  // });
 };
