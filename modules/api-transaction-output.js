@@ -14,6 +14,19 @@ exports.getOutputData = function (req, res) {
     ]
   ).then(
     function (userInfo) {
+      if (userInfo[0]['id'] < 1) {
+        let data = {
+          'status': 200,
+          'error': 'User không tồn tại!',
+          'data': {
+            'total_sender_trans': 0,
+            'sender_trans': [],
+            'limit': 10,
+            'offset': offset
+          }
+        };
+        res.send(data);
+      }
       if (userInfo[0]['id'] > 0) {
         dbHelper.dbLoadSql(
           `SELECT COUNT(t.id) as total_send
@@ -97,6 +110,19 @@ exports.getOutputData = function (req, res) {
                     ]
                   ).then(
                     function (outputInfo) {
+                      if (outputInfo.length == 0) {
+                        let data = {
+                          'status': 200,
+                          'report': 'Không tồn tại giao dịch!',
+                          'data': {
+                            'total_sender_trans': 0,
+                            'sender_trans': []
+                          },
+                          'limit': 10,
+                          'offset': offset
+                        };
+                        res.send(data);
+                      }
                       let temp = {
                         'transaction_id': transactionIdList[i]['id'],
                         'timestamp': transactionIdList[i]['created_at'],
@@ -124,7 +150,7 @@ exports.getOutputData = function (req, res) {
                       let data = {
                         'status': '500',
                         'data': {
-                          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+                          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại 4!'
                         }
                       };
                       res.send(data);
@@ -136,7 +162,7 @@ exports.getOutputData = function (req, res) {
                 let data = {
                   'status': '500',
                   'data': {
-                    'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+                    'error': 'Đã có lỗi xảy ra... Vui lòng thử lại 3!'
                   }
                 };
                 res.send(data);
@@ -147,7 +173,7 @@ exports.getOutputData = function (req, res) {
             let data = {
               'status': '500',
               'data': {
-                'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+                'error': 'Đã có lỗi xảy ra... Vui lòng thử lại 2!'
               }
             };
             res.send(data);
@@ -159,7 +185,7 @@ exports.getOutputData = function (req, res) {
       let data = {
         'status': '500',
         'data': {
-          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại 1!'
         }
       };
       res.send(data);
