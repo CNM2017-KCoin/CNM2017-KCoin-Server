@@ -69,11 +69,11 @@ ws.onmessage = function (response) {
                       `UPDATE tb_transaction
                       SET status = ?
                       WHERE id = ?
-                      AND status != ?`,
+                      AND status = ?`,
                       [
                         'success',
                         transactionList[j]['id'],
-                        'success'
+                        'waiting'
                       ]
                     ).then(
                       function (transInfo) {
