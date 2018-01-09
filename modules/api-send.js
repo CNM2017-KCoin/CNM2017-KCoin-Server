@@ -402,12 +402,14 @@ exports.createTransaction = function (req, res) {
         `INSERT INTO tb_transaction (
         ref_hash,
         send_amount,
-        receiver_address)
-        VALUES (?, ?, ?)`,
+        receiver_address,
+        created_by)
+        VALUES (?, ?, ?, ?)`,
         [
           -1,
           amount,
-          receiverAddress
+          receiverAddress,
+          email
         ]
       ).then(
         function (transactionInfo) {
