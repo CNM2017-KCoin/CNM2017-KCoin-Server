@@ -87,7 +87,7 @@ exports.send = function (req, res) {
             token: code,
             window: 6
           });
-          if (!tokenValidates) {
+          if (tokenValidates != true) {
             let data = {
               'status': '500',
               'data': {
