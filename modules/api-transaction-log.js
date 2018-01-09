@@ -62,7 +62,6 @@ exports.getLogTransaction = function (req, res) {
   let email = params['email'] || '';
   let offset = params['offset'] || 0;
   let password = params['password'] || '';
-  console.log('params: ' + params['email']);
   dbHelper.dbLoadSql(
     `SELECT id, role, status 
     FROM tb_login l
@@ -92,7 +91,6 @@ exports.getLogTransaction = function (req, res) {
               ]
             ).then(
               function (transactionLogList) {
-                console.log('22222222');
                 let data = {
                   'status': 200,
                   'report': 'Lấy dữ liệu thành công!',
