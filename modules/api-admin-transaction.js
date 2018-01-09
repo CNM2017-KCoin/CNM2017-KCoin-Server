@@ -82,7 +82,7 @@ exports.getData = function (req, res) {
               transactionIdList.push(transIdList[i]);
             }
           }
-          console.log(transactionIdList);
+          // console.log(transactionIdList);
           for (let i = 0; i < transactionIdList.length; i++) {
             dbHelper.dbLoadSql(
               `SELECT tto.user_id, tto.address
@@ -93,7 +93,7 @@ exports.getData = function (req, res) {
               ]
             ).then(
               function (outputInfo) {
-                console.log(outputInfo);
+                // console.log(outputInfo);
                 let temp = {
                   'transaction_id': transactionIdList[i]['id'],
                   'timestamp': transactionIdList[i]['created_at'],
@@ -106,9 +106,9 @@ exports.getData = function (req, res) {
                   'receiver_id': outputInfo[0]['user_id'],
                   'receiver_address': transactionIdList[0]['receiver_address'],
                 };
-                console.log(111111 + transaction_data.length);
+                // console.log(111111 + transaction_data.length);
                 transaction_data.push(temp);
-                console.log(222222 + TotalTransaction[0]['total_transaction']);
+                // console.log(222222 + TotalTransaction[0]['total_transaction']);
 
                 if (transaction_data.length == TotalTransaction[0]['total_transaction']) {
                   transaction_data.sort(function (a, b) {

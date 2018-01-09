@@ -619,8 +619,9 @@ exports.cancelTransaction = function (req, res) {
   let transactionId = params['transaction_id'] || '';
   //them giao dich voi trang thai khoi tao vao bang moi
   dbHelper.dbLoadSql(
-    `SELECT id
+    `SELECT l.id, w.available_amount
     FROM tb_login l
+    LEFT JOIN tb_wallet w ON l.id = w.user_id
     WHERE l.email = ?`,
     [
       email
@@ -637,7 +638,7 @@ exports.cancelTransaction = function (req, res) {
         res.send(data);
       }
       dbHelper.dbLoadSql(
-        `SELECT t.status
+        `SELECT t.status, t.send_amount
         FROM tb_transaction t
         WHERE t.id = ?`,
         [
@@ -664,13 +665,34 @@ exports.cancelTransaction = function (req, res) {
                 };
                 let response = [];
                 logTransaction.saveLogTransaction(request, response);
-                let data = {
-                  'status': '200',
-                  'data': {
-                    'report': 'Giao dịch thành công!'
+                // update số dư khả dụng - available amount
+                dbHelper.dbLoadSql(
+                  `UPDATE tb_wallet
+                  SET	available_amount = ?
+                  WHERE user_id = ?`,
+                  [
+                    userInfo[0]['available_amount'] + transactionInfo[0]['send_amount'],
+                    userInfo[0]['id']
+                  ]
+                ).then(
+                  function (walletInfo) {
+                    let data = {
+                      'status': '200',
+                      'data': {
+                        'report': 'Giao dịch thành công!'
+                      }
+                    };
+                    res.send(data);
                   }
-                };
-                res.send(data);
+                ).catch(function (error) {
+                    let data = {
+                      'status': '500',
+                      'data': {
+                        'error': "don't update available amount success!!!"
+                      }
+                    };
+                  }
+                );
               }
             );
           } else {
