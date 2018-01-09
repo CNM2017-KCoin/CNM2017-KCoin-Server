@@ -104,7 +104,7 @@ exports.getData = function (req, res) {
                   'sender_address': transactionIdList[i]['sender_address'],
                   'status': transactionIdList[i]['status'],
                   'receiver_id': outputInfo[0]['user_id'],
-                  'receiver_address': outputInfo[0]['address'],
+                  'receiver_address': transactionIdList[0]['receiver_address'],
                 };
                 console.log(111111 + transaction_data.length);
                 transaction_data.push(temp);
