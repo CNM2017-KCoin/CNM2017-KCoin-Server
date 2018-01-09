@@ -174,3 +174,48 @@ exports.getUsers = function (req, res) {
     }
   );
 };
+
+exports.findAddress = function (req, res) {
+  let params = req.body || {};
+  let email = params['email'] || '';
+  let receiver_email = params['receiver_email'] || '';
+  dbHelper.dbLoadSql(
+    `SELECT id,address 
+    FROM tb_login l
+    WHERE l.email = ?`,
+    [
+      receiver_email
+    ]
+  ).then(
+    function (userInfo) {
+      let data = [];
+      if (userInfo[0]['id'] > 0) {
+        let data = {
+          'status': '200',
+          'data': {
+            'address':userInfo[0]['address'],
+            'report': 'Tìm kiếm thành công!'
+          }
+        };
+        res.send(data);
+      } else {
+        let data = {
+          'status': '500',
+          'data': {
+            'error': 'Đăng nhập thất bại!'
+          }
+        };
+        res.send(data);
+      }
+    }
+  ).catch(function (error) {
+      let data = {
+        'status': '500',
+        'data': {
+          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+        }
+      };
+      res.send(data);
+    }
+  );
+};

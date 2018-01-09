@@ -37,7 +37,7 @@ coreApiRoute.post('/user-info', function (req, res) {
 });
 
 coreApiRoute.post('/find-address', function (req, res) {
-  apiUserInfo.getInfo(req, res);
+  apiUserInfo.findAddress(req, res);
 });
 
 
