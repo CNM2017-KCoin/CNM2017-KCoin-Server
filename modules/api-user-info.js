@@ -223,7 +223,6 @@ exports.findAddress = function (req, res) {
 exports.findRecentEmailList = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
-  let receiver_email = params['receiver_email'] || '';
   dbHelper.dbLoadSql(
     `SELECT id 
     FROM tb_login l
@@ -233,10 +232,10 @@ exports.findRecentEmailList = function (req, res) {
     ]
   ).then(
     function (userInfo) {
-      let data = [];
+      console.log(userInfo);
       if (userInfo[0]['id'] > 0) {
         dbHelper.dbLoadSql(
-          `SELECT email, address
+          `SELECT old_email, old_address
           FROM tb_transaction_old l
           WHERE l.user_id = ?`,
           [
@@ -244,6 +243,7 @@ exports.findRecentEmailList = function (req, res) {
           ]
         ).then(
           function (emailListInfo) { 
+            console.log(11111111);
             if(emailListInfo.length > 0) {
               let data = {
                 'status': '200',
