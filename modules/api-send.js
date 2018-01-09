@@ -574,14 +574,14 @@ exports.cancelTransaction = function (req, res) {
               ]
             ).then(
               function (transInfo) {
-                /*let request = {
+                let request = {
                   'email': email,
                   'transaction_id': transactionId,
                   'action': 'cancel'
 
                 };
                 let response = [];
-                logTransaction.saveLogTransaction(request, response);*/
+                logTransaction.saveLogTransaction(request, response);
                 let data = {
                   'status': '200',
                   'data': {
