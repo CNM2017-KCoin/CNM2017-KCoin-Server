@@ -57,3 +57,73 @@ exports.saveLogTransaction = function (req, res) {
   );
 };
 
+exports.getLogTransaction = function (req, res) {
+  let params = req.body || {};
+  let email = params['email'] || '';
+  let offset = params['offset'] || 0;
+  let password = params['password'] || '';
+  console.log('params: ' + params['email']);
+  dbHelper.dbLoadSql(
+    `SELECT id, role, status 
+    FROM tb_login l
+    WHERE l.email = ?`,
+    [
+      email,
+      // 1
+    ]
+  ).then(
+    function (userInfo) {
+      if (userInfo[0]['id'] > 0) {
+        dbHelper.dbLoadSql(
+          `SELECT COUNT (id) as total
+          FROM tb_transaction_log`,
+          []
+        ).then(
+          function (transactionLogTotal) {
+            dbHelper.dbLoadSql(
+              `SELECT *
+              FROM tb_transaction_log
+              ORDER BY created_at DESC
+              LIMIT ?
+              OFFSET ?`,
+              [
+                10,
+                offset * 10
+              ]
+            ).then(
+              function (transactionLogList) {
+                console.log('22222222');
+                let data = {
+                  'status': 200,
+                  'report': 'Lấy dữ liệu thành công!',
+                  'total': transactionLogTotal[0]['total'],
+                  'data': transactionLogList,
+                  'limit': 10,
+                  'offset': offset
+                };
+                res.send(data);
+              }
+            );
+          }
+        );
+      } else {
+        let data = {
+          'status': '500',
+          'data': {
+            'error': 'Tài khoản không thuộc hệ thống hoặc chưa được kích hoạt!'
+          }
+        };
+        res.send(data);
+      }
+    }
+  ).catch(function (error) {
+      let data = {
+        'status': '500',
+        'data': {
+          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+        }
+      };
+      res.send(data);
+    }
+  );
+};
