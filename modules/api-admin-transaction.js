@@ -82,6 +82,7 @@ exports.getData = function (req, res) {
               transactionIdList.push(transIdList[i]);
             }
           }
+          console.log(transactionIdList);
           for (let i = 0; i < transactionIdList.length; i++) {
             dbHelper.dbLoadSql(
               `SELECT tto.user_id, tto.address
@@ -92,6 +93,8 @@ exports.getData = function (req, res) {
               ]
             ).then(
               function (outputInfo) {
+                console.log(123213213);
+                console.log(outputInfo);
                 let temp = {
                   'transaction_id': transactionIdList[i]['id'],
                   'timestamp': transactionIdList[i]['created_at'],
@@ -104,8 +107,13 @@ exports.getData = function (req, res) {
                   'receiver_id': outputInfo[0]['user_id'],
                   'receiver_address': outputInfo[0]['address'],
                 };
+                console.log(111111 + transaction_data.length);
                 transaction_data.push(temp);
+                console.log(222222 + TotalTransaction[0]['total_transaction']);
+
                 if (transaction_data.length == TotalTransaction[0]['total_transaction']) {
+
+                  console.log(3333333);
                   let data = {
                     'status': 200,
                     'report': 'Lấy dữ liệu thành công!',
@@ -121,6 +129,15 @@ exports.getData = function (req, res) {
               }
             );
           }
+        }
+      ).catch(function (error) {
+          let data = {
+            'status': '500',
+            'data': {
+              'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+            }
+          };
+          res.send(data);
         }
       );
     }
