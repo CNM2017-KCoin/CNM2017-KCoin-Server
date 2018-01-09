@@ -105,10 +105,37 @@ exports.getInputData = function (req, res) {
                         res.send(data);
                       }
                     }
+                  ).catch(function (error) {
+                      let data = {
+                        'status': '500',
+                        'data': {
+                          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+                        }
+                      };
+                      res.send(data);
+                    }
                   );
                 }
               }
+            ).catch(function (error) {
+                let data = {
+                  'status': '500',
+                  'data': {
+                    'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+                  }
+                };
+                res.send(data);
+              }
             );
+          }
+        ).catch(function (error) {
+            let data = {
+              'status': '500',
+              'data': {
+                'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+              }
+            };
+            res.send(data);
           }
         );
       }
