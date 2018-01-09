@@ -408,7 +408,7 @@ exports.send = function (req, res) {
                                             old_address)
                                             VALUES (?, ?, ?, ?)`,
                                             [
-                                              id,
+                                              userInfo[0]['id'],
                                               oldUserInfo[0]['id'],
                                               oldUserInfo[0]['email'],
                                               oldUserInfo[0]['address'],
