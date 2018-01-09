@@ -64,7 +64,7 @@ exports.getData = function (req, res) {
           }
           let transactionIdList = [];
           for (let i = 0; i < transIdList.length; i++) {
-            if (transIdList[i]['status'] == 'creating') {
+            if (transIdList[i]['status'] == 'creating' || transIdList[i]['status'] == 'fail') {
               let temp = {
                 'transaction_id': transIdList[i]['id'],
                 'timestamp': transIdList[i]['created_at'],
@@ -83,6 +83,22 @@ exports.getData = function (req, res) {
             }
           }
           // console.log(transactionIdList);
+          if (transactionIdList.length == 0) {
+            transaction_data.sort(function (a, b) {
+              return b['transaction_id'] - a['transaction_id'];
+            });
+            let data = {
+              'status': 200,
+              'report': 'Lấy dữ liệu thành công!',
+              'data': {
+                'total_trans': TotalTransaction[0]['total_transaction'],
+                'trans_list': transaction_data,
+                'limit': 10,
+                'offset': offset
+              }
+            };
+            res.send(data);
+          }
           for (let i = 0; i < transactionIdList.length; i++) {
             dbHelper.dbLoadSql(
               `SELECT tto.user_id, tto.address
