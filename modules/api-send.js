@@ -3,7 +3,6 @@ let utils = require('../helpers/utils.js');
 let axios = require('axios');
 let speakeasy = require('speakeasy');
 let nodemailer = require('nodemailer');
-var xoauth2 = require('xoauth2');
 let twoFactor = require('node-2fa');
 
 // Convert a transaction to binary format for hashing or checking the size
@@ -455,28 +454,29 @@ exports.sendValidate = function (req, res) {
         let transporter = nodemailer.createTransport( {
           service: 'Gmail',
           auth: {
-            XOAuth2: {
-              user: "vuquangkhtn@gmail.com",
-              clientId: "347978303221-ae0esf1ucvud2m5g1k9csvt40bkhn2lr.apps.googleusercontent.com",
-              clientSecret: "pSU1AXrZRSSqayy4ulE8xiA6",
-              refreshToken: "1/oPM1V4LSQVYcV-LsEsjBzBwpPTI3LXy1-Jx3ytN5tB2VbhMhXcvyaVkdCgG_Kg7C"
-            }
+            type: 'OAuth2',
+            user: "vuquangkhtn@gmail.com",
+            clientId: "347978303221-ae0esf1ucvud2m5g1k9csvt40bkhn2lr.apps.googleusercontent.com",
+            clientSecret: "pSU1AXrZRSSqayy4ulE8xiA6",
+            refreshToken: "1/KEih6qtYQoj4ADp49R1rMXQArsARt2dua6n2eQQ55lA"
+          },
+          tls: {
+              rejectUnauthorized: false
           }
         })
-        console.log(11111);
 
         let newToken = speakeasy.totp({
           secret: secret.base32,
           encoding: 'base32'
         });
 
+        console.log(newToken);
         let strContext = "<div>Dear Sir/Madam,</br> You recently used " + email + " to post a transaction by your KCoin Wallet ID. To verify this email address belongs to you, please enter the code below on the verification page: " + newToken + "</div>";
 
         let mailOptions = {
           from: 'vuquangkhtn@gmail.com', // sender address
-          to: "phamductien1417@gmail.com", // list of receivers
+          to: 'phamductien1417@gmail.com', // list of receivers
           subject: 'KCoin Authentication - Verify your email address', // Subject line
-          text: 'You recieved message from ',
           html: strContext, // plain text body
         };
 
