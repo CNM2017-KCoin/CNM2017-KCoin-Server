@@ -557,7 +557,7 @@ exports.sendValidate = function (req, res) {
         })
 
         let newToken = speakeasy.totp({
-          secret: secret.base32,
+          secret: secret,
           encoding: 'base32'
         });
 
