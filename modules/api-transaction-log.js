@@ -21,11 +21,13 @@ exports.saveLogTransaction = function (req, res) {
           `INSERT INTO tb_transaction_log (
             transaction_id, 
             user_id,
+            email,
             action)
             VALUES (?, ?, ?)`,
           [
             transactionId,
             userInfo[0]['id'],
+            email,
             actionText
           ]
         ).then(
