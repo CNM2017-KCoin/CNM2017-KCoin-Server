@@ -60,10 +60,11 @@ let sign = function (transaction, key) {
 exports.send = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
-  let receiver_address = params['receiver_address'] || '';
-  let amount = params['amount'] || '';
+  // let receiver_address = params['receiver_address'] || '';
+  // let amount = params['amount'] || '';
   let password = params['password'] || '';
   let code = params['code'] || '';
+  let transactionId = params['transaction_id'] || '';
 
   dbHelper.dbLoadSql(
     `SELECT id, password, public_key, private_key, address, access_token
@@ -95,221 +96,244 @@ exports.send = function (req, res) {
             res.send(data);
           } else {
             dbHelper.dbLoadSql(
-              `SELECT id, ref_hash, ref_index, amount
-              FROM tb_input_package ip
-              WHERE ip.amount != 0
-              AND ip.user_id = ?`,
+              `SELECT t.id, t.receiver_address, t.send_amount
+              FROM tb_transaction t
+              WHERE t.id = ?
+              AND t.status = ?`,
               [
-                userInfo[0]['id']
+                transactionId,
+                'creating'
               ]
             ).then(
-              function (inputPackage) {
-                let countAmount = 0;
-                let listPackage = [];
-                for (let i = 0; i < inputPackage.length; i++) {
-                  let packageItem = {
-                    'ref_hash': inputPackage[i].ref_hash,
-                    'ref_index': inputPackage[i].ref_index,
-                    'amount': inputPackage[i].amount
-                  };
-                  listPackage.push(packageItem);
-                  countAmount += inputPackage[i].amount;
-                  if (countAmount >= amount) {
-                    break;
-                  }
-                }
-                if (countAmount < amount) {
+              function (TransInfo) {
+                if (TransInfo[0]['id'] < 1) {
                   let data = {
-                    'status': '400',
+                    'status': '500',
                     'data': {
-                      'error': 'Số dư của tài khoản không đủ để thực hiện giao dịch này!'
+                      'error': 'Không tồn tại transaction này!!!'
                     }
                   };
                   res.send(data);
-                } else {
-                  let inputList = [];
-                  for (let i = 0; i < listPackage.length; i++) {
-                    let input = {
-                      "unlockScript": "",
-                      "referencedOutputHash": listPackage[i].ref_hash,
-                      "referencedOutputIndex": listPackage[i].ref_index
-                    };
-                    inputList.push(input);
-                  }
-                  let outputList = [];
-                  if (countAmount > amount) {
-                    outputList = [
-                      {
-                        "value": parseInt(countAmount - amount),
-                        "lockScript": 'ADD ' + userInfo[0].address
-                      },
-                      {
-                        "value": parseInt(amount),
-                        "lockScript": 'ADD ' + receiver_address
+                }
+                let amount = TransInfo[0]['send_amount'];
+                let receiver_address = TransInfo[0]['receiver_address'];
+                dbHelper.dbLoadSql(
+                  `SELECT id, ref_hash, ref_index, amount
+                  FROM tb_input_package ip
+                  WHERE ip.amount != 0
+                  AND ip.user_id = ?`,
+                  [
+                    userInfo[0]['id']
+                  ]
+                ).then(
+                  function (inputPackage) {
+                    let countAmount = 0;
+                    let listPackage = [];
+                    for (let i = 0; i < inputPackage.length; i++) {
+                      let packageItem = {
+                        'ref_hash': inputPackage[i].ref_hash,
+                        'ref_index': inputPackage[i].ref_index,
+                        'amount': inputPackage[i].amount
+                      };
+                      listPackage.push(packageItem);
+                      countAmount += inputPackage[i].amount;
+                      if (countAmount >= amount) {
+                        break;
                       }
-                    ];
-                  } else {
-                    outputList = [
-                      {
-                        "value": amount,
-                        "lockScript": 'ADD ' + receiver_address
+                    }
+                    if (countAmount < amount) {
+                      let data = {
+                        'status': '400',
+                        'data': {
+                          'error': 'Số dư của tài khoản không đủ để thực hiện giao dịch này!'
+                        }
+                      };
+                      res.send(data);
+                    } else {
+                      let inputList = [];
+                      for (let i = 0; i < listPackage.length; i++) {
+                        let input = {
+                          "unlockScript": "",
+                          "referencedOutputHash": listPackage[i].ref_hash,
+                          "referencedOutputIndex": listPackage[i].ref_index
+                        };
+                        inputList.push(input);
                       }
-                    ];
-                  }
-                  let transaction = {
-                    "inputs": inputList,
-                    "outputs": outputList,
-                    "version": 1
-                  };
-                  let key = {
-                    "privateKey": userInfo[0].private_key,
-                    "publicKey": userInfo[0].public_key,
-                    "address": userInfo[0].address
-                  };
-                  sign(transaction, key);
-                  // console.log(transaction);
-                  axios.post('https://api.kcoin.club/transactions', transaction)
-                    .then(function (response) {
-                      // console.log('111111111111111111111111111111111');
-                      // console.log(response.data);
-                      let data = response.data;
-                      // console.log("it's me!!!!!!!!!!!");
-                      // console.log(data);
-                      if (data.hash != null) {
-                        dbHelper.dbLoadSql(
-                          `INSERT INTO tb_transaction (
-                           ref_hash,
-                           send_amount)
-                           VALUES (?, ?)`,
-                          [
-                            data.hash,
-                            amount
-                          ]
-                        ).then(
-                          function (transactionInfo) {
-                            if (transactionInfo.insertId > 0) {
-                              // Insert data to transaction input
-                              for (let i = 0; i < data.inputs.length; i++) {
-                                let refHash = data.inputs[i].referencedOutputHash;
-                                let refIndex = data.inputs[i].referencedOutputIndex;
+                      let outputList = [];
+                      if (countAmount > amount) {
+                        outputList = [
+                          {
+                            "value": parseInt(countAmount - amount),
+                            "lockScript": 'ADD ' + userInfo[0].address
+                          },
+                          {
+                            "value": parseInt(amount),
+                            "lockScript": 'ADD ' + receiver_address
+                          }
+                        ];
+                      } else {
+                        outputList = [
+                          {
+                            "value": amount,
+                            "lockScript": 'ADD ' + receiver_address
+                          }
+                        ];
+                      }
+                      let transaction = {
+                        "inputs": inputList,
+                        "outputs": outputList,
+                        "version": 1
+                      };
+                      let key = {
+                        "privateKey": userInfo[0].private_key,
+                        "publicKey": userInfo[0].public_key,
+                        "address": userInfo[0].address
+                      };
+                      sign(transaction, key);
+                      // console.log(transaction);
+                      axios.post('https://api.kcoin.club/transactions', transaction)
+                        .then(function (response) {
+                          // console.log('111111111111111111111111111111111');
+                          // console.log(response.data);
+                          let data = response.data;
+                          // console.log("it's me!!!!!!!!!!!");
+                          // console.log(data);
+                          if (data.hash != null) {
+                            dbHelper.dbLoadSql(
+                              `UPDATE tb_transaction
+                              SET status = ?,
+                              ref_hash = ?
+                              WHERE id = ?`,
+                              [
+                                'waiting',
+                                data.hash,
+                                transactionId
+                              ]
+                            ).then(
+                              function (transactionInfo) {
+                                // Insert data to transaction input
+                                for (let i = 0; i < data.inputs.length; i++) {
+                                  let refHash = data.inputs[i].referencedOutputHash;
+                                  let refIndex = data.inputs[i].referencedOutputIndex;
 
-                                function isPackage(inputs) {
-                                  return (inputs.ref_hash == refHash) && (inputs.ref_index == refIndex);
+                                  function isPackage(inputs) {
+                                    return (inputs.ref_hash == refHash) && (inputs.ref_index == refIndex);
+                                  }
+
+                                  let packageTemp = listPackage.find(isPackage);
+                                  dbHelper.dbLoadSql(
+                                    `INSERT INTO tb_transaction_input (
+                                    transaction_id,
+                                    user_id,
+                                    address,
+                                    ref_hash,
+                                    ref_index,
+                                    amount)
+                                    VALUES (?, ?, ?, ?, ?, ?)`,
+                                    [
+                                      transactionId,
+                                      userInfo[0]['id'],
+                                      userInfo[0]['address'],
+                                      data.inputs[i].referencedOutputHash,
+                                      data.inputs[i].referencedOutputIndex,
+                                      packageTemp.amount
+                                    ]
+                                  ).then(function (transactionInputInfo) {
+                                    // do nothing
+                                  });
                                 }
-
-                                let packageTemp = listPackage.find(isPackage);
-                                dbHelper.dbLoadSql(
-                                  `INSERT INTO tb_transaction_input (
-                                   transaction_id,
-                                   user_id,
-                                   address,
-                                   ref_hash,
-                                   ref_index,
-                                   amount)
-                                   VALUES (?, ?, ?, ?, ?, ?)`,
-                                  [
-                                    transactionInfo.insertId,
-                                    userInfo[0]['id'],
-                                    userInfo[0]['address'],
-                                    data.inputs[i].referencedOutputHash,
-                                    data.inputs[i].referencedOutputIndex,
-                                    packageTemp.amount
-                                  ]
-                                ).then(function (transactionInputInfo) {
-                                  // do nothing
-                                });
-                              }
-                              // Insert data to transaction output
-                              for (let i = 0; i < data.outputs.length; i++) {
-                                dbHelper.dbLoadSql(
-                                  `SELECT id, address
-                                  FROM tb_login l
-                                  WHERE l.address = ?`,
-                                  [
-                                    data.outputs[i].lockScript.substr(4, data.outputs[i].lockScript.length)
-                                  ]
-                                ).then(
-                                  function (userInfo2) {
-                                    // console.log('usersereeeeeee')
-                                    if (userInfo2[0]['id'] > 0) {
-                                      dbHelper.dbLoadSql(
-                                        `INSERT INTO tb_transaction_output (
+                                // Insert data to transaction output
+                                for (let i = 0; i < data.outputs.length; i++) {
+                                  dbHelper.dbLoadSql(
+                                    `SELECT id, address
+                                      FROM tb_login l
+                                      WHERE l.address = ?`,
+                                    [
+                                      data.outputs[i].lockScript.substr(4, data.outputs[i].lockScript.length)
+                                    ]
+                                  ).then(
+                                    function (userInfo2) {
+                                      // console.log('usersereeeeeee')
+                                      if (userInfo2[0]['id'] > 0) {
+                                        dbHelper.dbLoadSql(
+                                          `INSERT INTO tb_transaction_output (
                                          transaction_id,
                                          user_id,
                                          address,
                                          ref_index,
                                          amount)
                                          VALUES (?, ?, ?, ?, ?)`,
-                                        [
-                                          transactionInfo.insertId,
-                                          userInfo2[0]['id'],
-                                          userInfo2[0]['address'],
-                                          i,
-                                          data.outputs[i].value
-                                        ]
-                                      ).then(function (transactionInputInfo) {
-                                        // do nothing
-                                      });
-                                    }
-                                  }
-                                );
-                              }
-                              // Update available amount
-                              dbHelper.dbLoadSql(
-                                `SELECT actual_amount
-                                FROM tb_wallet w
-                                WHERE w.user_id = ?`,
-                                [
-                                  userInfo[0]['id']
-                                ]
-                              ).then(
-                                function (walletInfo) {
-                                  dbHelper.dbLoadSql(
-                                    `UPDATE tb_wallet
-                                    SET available_amount = ?
-                                    WHERE user_id = ?`,
-                                    [
-                                      walletInfo[0]['actual_amount'] - amount,
-                                      userInfo[0]['id']
-                                    ]
-                                  ).then(
-                                    function (walletInfo2) {
-                                      // do nothing
+                                          [
+                                            transactionId,
+                                            userInfo2[0]['id'],
+                                            userInfo2[0]['address'],
+                                            i,
+                                            data.outputs[i].value
+                                          ]
+                                        ).then(function (transactionInputInfo) {
+                                          // do nothing
+                                        });
+                                      }
                                     }
                                   );
                                 }
-                              );
-                              let returnData = {
-                                'status': '200',
-                                'data': {
-                                  'report': 'Giao dịch thành công!'
-                                }
-                              };
-                              res.send(returnData);
+                                // Update available amount
+                                dbHelper.dbLoadSql(
+                                  `SELECT actual_amount
+                                  FROM tb_wallet w
+                                  WHERE w.user_id = ?`,
+                                  [
+                                    userInfo[0]['id']
+                                  ]
+                                ).then(
+                                  function (walletInfo) {
+                                    dbHelper.dbLoadSql(
+                                      `UPDATE tb_wallet
+                                      SET available_amount = ?
+                                      WHERE user_id = ?`,
+                                      [
+                                        walletInfo[0]['actual_amount'] - amount,
+                                        userInfo[0]['id']
+                                      ]
+                                    ).then(
+                                      function (walletInfo2) {
+                                        // do nothing
+                                      }
+                                    );
+                                  }
+                                );
+                                let returnData = {
+                                  'status': '200',
+                                  'data': {
+                                    'report': 'Giao dịch thành công!'
+                                  }
+                                };
+                                res.send(returnData);
+                              }
+                            ).catch(function (error) {
+                                res.send(error);
+                              }
+                            );
+                          }
+                        })
+                        .catch(function (error) {
+                          // console.log('2222222222');
+                          // console.log(error);
+                          let data = {
+                            'status': '500',
+                            'data': {
+                              'error': 'Giao dịch thất bại!!!'
                             }
-                          }
-                        ).catch(function (error) {
-                            res.send(error);
-                          }
-                        );
-                      }
-                    })
-                    .catch(function (error) {
-                      // console.log('2222222222');
-                      // console.log(error);
-                      let data = {
-                        'status': '500',
-                        'data': {
-                          'error': 'Giao dịch thất bại!!!'
-                        }
-                      };
-                      res.send(data);
-                    });
-                  // console.log(JSON.stringify(transaction));
-                }
+                          };
+                          res.send(data);
+                        });
+                      // console.log(JSON.stringify(transaction));
+                    }
+                  }
+                );
               }
             );
-          }          
+          }
         } else {
           let data = {
             'status': '500',
@@ -344,10 +368,71 @@ exports.send = function (req, res) {
 exports.createTransaction = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
-  let receiver_address = params['receiver_address'] || '';
+  let receiverAddress = params['receiver_address'] || '';
   let amount = params['amount'] || '';
 
   //them giao dich voi trang thai khoi tao vao bang moi
+  dbHelper.dbLoadSql(
+    `SELECT id
+    FROM tb_login l
+    WHERE l.email = ?`,
+    [
+      email
+    ]
+  ).then(
+    function (userInfo) {
+      if (userInfo[0]['id'] < 1) {
+        let data = {
+          'status': '500',
+          'data': {
+            'error': 'User này không thuộc hệ thống!'
+          }
+        };
+        res.send(data);
+      }
+      dbHelper.dbLoadSql(
+        `INSERT INTO tb_transaction (
+        ref_hash,
+        send_amount,
+        receiver_address)
+        VALUES (?, ?, ?)`,
+        [
+          -1,
+          amount,
+          receiverAddress
+        ]
+      ).then(
+        function (transactionInfo) {
+          if (transactionInfo.insertId > 0) {
+            let data = {
+              'status': '200',
+              'data': {
+                'report': 'Giao dịch thành công!'
+              }
+            };
+            res.send(data);
+          } else {
+            let data = {
+              'status': '500',
+              'data': {
+                'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+              }
+            };
+            res.send(data);
+          }
+        }
+      );
+    }
+  ).catch(function (error) {
+      let data = {
+        'status': '500',
+        'data': {
+          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+        }
+      };
+      res.send(data);
+    }
+  );
 };
 
 exports.sendValidate = function (req, res) {
@@ -379,17 +464,17 @@ exports.sendValidate = function (req, res) {
           encoding: 'base32'
         });
 
-        let strContext = "<div>Dear Sir/Madam,</br> You recently used "+email+" to post a transaction by your KCoin Wallet ID. To verify this email address belongs to you, please enter the code below on the verification page: " + newToken +"</div>";
+        let strContext = "<div>Dear Sir/Madam,</br> You recently used " + email + " to post a transaction by your KCoin Wallet ID. To verify this email address belongs to you, please enter the code below on the verification page: " + newToken + "</div>";
 
         let mailOptions = {
-              from: 'vuquangkhtn@gmail.com', // sender address
-              to: "phamductien1417@gmail.com", // list of receivers
-              subject: 'KCoin Authentication - Verify your email address', // Subject line
-              text: 'You recieved message from ',
-              html: strContext, // plain text body
-          };
+          from: 'vuquangkhtn@gmail.com', // sender address
+          to: "phamductien1417@gmail.com", // list of receivers
+          subject: 'KCoin Authentication - Verify your email address', // Subject line
+          text: 'You recieved message from ',
+          html: strContext, // plain text body
+        };
 
-        transporter.sendMail(mailOptions,(error, info) => {
+        transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
             let data = {
               'status': '500',
