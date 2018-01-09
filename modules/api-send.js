@@ -320,10 +320,6 @@ exports.send = function (req, res) {
                                   );
                                 }
                                 // Update available amount
-                                let id = 2;
-                                let email = 'ad@gmail.com';
-                                let address = 'ad@gmail.com';
-                                let receiver_address = "996b34c658a088ecc2ee72a12e8a6aca4b714c729d0d76d4db5409c08003f3dd";
                                 dbHelper.dbLoadSql(
                                   `SELECT actual_amount
                                   FROM tb_wallet w

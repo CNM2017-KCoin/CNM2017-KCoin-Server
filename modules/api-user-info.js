@@ -235,7 +235,7 @@ exports.findRecentEmailList = function (req, res) {
       console.log(userInfo);
       if (userInfo[0]['id'] > 0) {
         dbHelper.dbLoadSql(
-          `SELECT old_email, old_address
+          `SELECT old_email
           FROM tb_transaction_old l
           WHERE l.user_id = ?`,
           [
