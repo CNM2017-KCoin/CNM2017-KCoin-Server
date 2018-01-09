@@ -99,6 +99,7 @@ exports.getData = function (req, res) {
             };
             res.send(data);
           }
+          let condition = transaction_data.length + transactionIdList.length;
           for (let i = 0; i < transactionIdList.length; i++) {
             dbHelper.dbLoadSql(
               `SELECT tto.user_id, tto.address
@@ -126,7 +127,7 @@ exports.getData = function (req, res) {
                 transaction_data.push(temp);
                 // console.log(222222 + TotalTransaction[0]['total_transaction']);
 
-                if (transaction_data.length == TotalTransaction[0]['total_transaction']) {
+                if (transaction_data.length == condition) {
                   transaction_data.sort(function (a, b) {
                     return b['transaction_id'] - a['transaction_id'];
                   });

@@ -121,6 +121,7 @@ exports.getOutputData = function (req, res) {
                   };
                   res.send(data);
                 }
+                let condition = sender_data.length + transactionIdList.length;
                 for (let i = 0; i < transactionIdList.length; i++) {
 
                   // console.log(6666666);
@@ -136,7 +137,7 @@ exports.getOutputData = function (req, res) {
                   ).then(
                     function (outputInfo) {
                       if (outputInfo.length < 1) {
-                        // console.log(777777777);
+                        console.log(777777777);
                         let data = {
                           'status': 200,
                           'report': 'Không tồn tại giao dịch!',
@@ -158,7 +159,10 @@ exports.getOutputData = function (req, res) {
                         'receiver_address': outputInfo[0]['address'],
                       };
                       sender_data.push(temp);
-                      if ((sender_data.length == TotalSend[0]['total_send'])) {
+                      // console.log('11233323');
+
+
+                      if ((sender_data.length == condition)) {
                         sender_data.sort(function (a, b) {
                           return b['transaction_id'] - a['transaction_id'];
                         });
