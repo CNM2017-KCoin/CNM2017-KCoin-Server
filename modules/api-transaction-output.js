@@ -57,7 +57,7 @@ exports.getOutputData = function (req, res) {
               res.send(data);
             }
             dbHelper.dbLoadSql(
-              `SELECT t.id, t.created_at, t.send_amount, t.status
+              `SELECT t.id, t.created_at, t.send_amount, t.status, t.receiver_address
               FROM tb_transaction t
               LEFT JOIN tb_transaction_input ti ON t.id = ti.transaction_id
               WHERE ti.user_id = ?
@@ -97,7 +97,7 @@ exports.getOutputData = function (req, res) {
                       'timestamp': transIdList[i]['created_at'],
                       'amount': transIdList[i]['send_amount'],
                       'status': transIdList[i]['status'],
-                      'receiver_id': -1,
+                      'receiver_id': transIdList[i]['receiver_address'],
                       'receiver_address': "",
                     };
                     sender_data.push(temp);
