@@ -45,9 +45,9 @@ exports.getInputData = function (req, res) {
               LEFT JOIN tb_transaction_output tto ON t.id = tto.transaction_id
               WHERE tto.user_id = ?
               AND t.status = ?
+              ORDER BY t.created_at DESC
               LIMIT ?
-              OFFSET ?
-              ORDER BY t.created_at DESC`,
+              OFFSET ?`,
               [
                 userInfo[0]['id'],
                 'success',
