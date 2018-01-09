@@ -503,11 +503,12 @@ exports.send = function (req, res) {
                         })
                         .catch(function (error) {
                           // console.log('2222222222');
-                          // console.log(error);
+                          console.log(error);
                           let data = {
                             'status': '500',
                             'data': {
-                              'error': 'Giao dịch thất bại!!!'
+                              'error': 'Giao dịch thất bại!!!',
+                              'log': error
                             }
                           };
                           res.send(data);
