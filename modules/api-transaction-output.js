@@ -91,7 +91,7 @@ exports.getOutputData = function (req, res) {
                 let transactionIdList = [];
                 for (let i = 0; i < transIdList.length; i++) {
                   // console.log(555555);
-                  if (transIdList[i]['status'] == 'creating') {
+                  if (transIdList[i]['status'] == 'creating' || transIdList[i]['status'] == 'fail') {
                     let temp = {
                       'transaction_id': transIdList[i]['id'],
                       'timestamp': transIdList[i]['created_at'],
