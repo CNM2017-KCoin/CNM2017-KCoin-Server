@@ -82,4 +82,9 @@ coreApiRoute.post('/all-transactions', function (req, res) {
   apiAdminTransaction.getData(req, res);
 });
 
+// Api cancel transaction
+coreApiRoute.post('/cancel-transaction', function (req, res) {
+  apiSend.cancelTransaction(req, res);
+});
+
 module.exports = coreApiRoute;
