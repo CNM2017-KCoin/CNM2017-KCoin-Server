@@ -97,8 +97,8 @@ exports.getOutputData = function (req, res) {
                       'timestamp': transIdList[i]['created_at'],
                       'amount': transIdList[i]['send_amount'],
                       'status': transIdList[i]['status'],
-                      'receiver_id': transIdList[i]['receiver_address'],
-                      'receiver_address': "",
+                      'receiver_id': -1,
+                      'receiver_address': transIdList[i]['receiver_address'],
                     };
                     sender_data.push(temp);
                   } else {
