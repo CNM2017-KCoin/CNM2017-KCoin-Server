@@ -514,3 +514,79 @@ exports.sendValidate = function (req, res) {
     }
   );
 };
+
+exports.cancelTransaction = function (req, res) {
+  let params = req.body || {};
+  let email = params['email'] || '';
+  let transactionId = params['transaction_id'] || '';
+  //them giao dich voi trang thai khoi tao vao bang moi
+  dbHelper.dbLoadSql(
+    `SELECT id
+    FROM tb_login l
+    WHERE l.email = ?`,
+    [
+      email
+    ]
+  ).then(
+    function (userInfo) {
+      if (userInfo[0]['id'] < 1) {
+        let data = {
+          'status': '500',
+          'data': {
+            'error': 'User này không thuộc hệ thống!'
+          }
+        };
+        res.send(data);
+      }
+      dbHelper.dbLoadSql(
+        `SELECT t.status
+        FROM tb_transaction t
+        WHERE t.id = ?`,
+        [
+          transactionId
+        ]
+      ).then(
+        function (transactionInfo) {
+          if (transactionInfo[0]['status'] == 'creating') {
+            dbHelper.dbLoadSql(
+              `UPDATE tb_transaction
+              SET status = ?
+              WHERE id = ?`,
+              [
+                'fail',
+                transactionId
+              ]
+            ).then(
+              function (transInfo) {
+                let data = {
+                  'status': '200',
+                  'data': {
+                    'report': 'Giao dịch thành công!'
+                  }
+                };
+                res.send(data);
+              }
+            );
+          } else {
+            let data = {
+              'status': '500',
+              'data': {
+                'error': 'Không thể hủy giao dịch đã gửi đi!'
+              }
+            };
+            res.send(data);
+          }
+        }
+      );
+    }
+  ).catch(function (error) {
+      let data = {
+        'status': '500',
+        'data': {
+          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+        }
+      };
+      res.send(data);
+    }
+  );
+};
