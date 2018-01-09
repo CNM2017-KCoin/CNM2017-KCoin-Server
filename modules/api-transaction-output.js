@@ -14,6 +14,7 @@ exports.getOutputData = function (req, res) {
     ]
   ).then(
     function (userInfo) {
+      // console.log(1111111);
       if (userInfo[0]['id'] < 1) {
         let data = {
           'status': 200,
@@ -28,6 +29,7 @@ exports.getOutputData = function (req, res) {
         res.send(data);
       }
       if (userInfo[0]['id'] > 0) {
+        // console.log(2222222);
         dbHelper.dbLoadSql(
           `SELECT COUNT(t.id) as total_send
           FROM tb_transaction t
@@ -40,7 +42,8 @@ exports.getOutputData = function (req, res) {
           ]
         ).then(
           function (TotalSend) {
-            if (TotalSend[0]['total_send'] == 0) {
+            // console.log(33333333);
+            if (TotalSend[0]['total_send'] < 1) {
               let data = {
                 'status': 200,
                 'error': 'Không tồn tại dữ liệu!',
@@ -70,7 +73,8 @@ exports.getOutputData = function (req, res) {
               ]
             ).then(
               function (transIdList) {
-                if (transIdList.length == 0) {
+                // console.log(44444444);
+                if (transIdList.length < 1) {
                   let data = {
                     'status': 200,
                     'error': 'Không tồn tại dữ liệu phân trang này',
@@ -86,6 +90,7 @@ exports.getOutputData = function (req, res) {
                 //, t.created_at, t.send_amount, t.status
                 let transactionIdList = [];
                 for (let i = 0; i < transIdList.length; i++) {
+                  // console.log(555555);
                   if (transIdList[i]['status'] == 'creating') {
                     let temp = {
                       'transaction_id': transIdList[i]['id'],
@@ -100,7 +105,22 @@ exports.getOutputData = function (req, res) {
                     transactionIdList.push(transIdList[i]);
                   }
                 }
+                if (transactionIdList.length == 0) {
+                  let data = {
+                    'status': 200,
+                    'report': 'Lấy dữ liệu thành công!',
+                    'data': {
+                      'total_sender_trans': TotalSend[0]['total_send'],
+                      'sender_trans': sender_data,
+                      'limit': 10,
+                      'offset': offset
+                    }
+                  };
+                  res.send(data);
+                }
                 for (let i = 0; i < transactionIdList.length; i++) {
+
+                  // console.log(6666666);
                   dbHelper.dbLoadSql(
                     `SELECT tto.user_id, tto.address
                     FROM tb_transaction_output tto
@@ -111,6 +131,7 @@ exports.getOutputData = function (req, res) {
                   ).then(
                     function (outputInfo) {
                       if (outputInfo.length < 1) {
+                        // console.log(777777777);
                         let data = {
                           'status': 200,
                           'report': 'Không tồn tại giao dịch!',
@@ -146,10 +167,19 @@ exports.getOutputData = function (req, res) {
                         res.send(data);
                       }
                     }
+                  ).catch(function (error) {
+                      let data = {
+                        'status': '500',
+                        'data': {
+                          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại 3!'
+                        }
+                      };
+                      res.send(data);
+                    }
                   );
                 }
               }
-            ) .catch(function (error) {
+            ).catch(function (error) {
                 let data = {
                   'status': '500',
                   'data': {
