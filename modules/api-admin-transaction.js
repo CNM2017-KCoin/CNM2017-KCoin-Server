@@ -18,7 +18,6 @@ exports.getData = function (req, res) {
     ]
   ).then(
     function (TotalTransaction) {
-      console.log('total: ' + TotalTransaction[0]['total_transaction']);
       if (TotalTransaction[0]['total_transaction'] == 0) {
         let data = {
           'status': 200,
@@ -50,8 +49,6 @@ exports.getData = function (req, res) {
         ]
       ).then(
         function (transIdList) {
-
-          console.log('total 2: ' + transIdList.length);
           if (transIdList.length == 0) {
             let data = {
               'status': 200,
@@ -85,9 +82,7 @@ exports.getData = function (req, res) {
               transactionIdList.push(transIdList[i]);
             }
           }
-          console.log('first: ' + transaction_data);
           for (let i = 0; i < transactionIdList.length; i++) {
-            console.log('index: ' + i);
             dbHelper.dbLoadSql(
               `SELECT tto.user_id, tto.address
               FROM tb_transaction_output tto
@@ -97,7 +92,6 @@ exports.getData = function (req, res) {
               ]
             ).then(
               function (outputInfo) {
-                console.log('uhm: ' + i);
                 let temp = {
                   'transaction_id': transactionIdList[i]['id'],
                   'timestamp': transactionIdList[i]['created_at'],
@@ -111,9 +105,7 @@ exports.getData = function (req, res) {
                   'receiver_address': outputInfo[0]['address'],
                 };
                 transaction_data.push(temp);
-                console.log('second: ' + transaction_data);
                 if (transaction_data.length == TotalTransaction[0]['total_transaction']) {
-                  console.log('yeah: ');
                   let data = {
                     'status': 200,
                     'report': 'Lấy dữ liệu thành công!',
