@@ -360,6 +360,57 @@ exports.send = function (req, res) {
                                 };
                                 let response = [];
                                 logTransaction.saveLogTransaction(request, response);
+                                // mail -> thay doi available amount
+                                let newAmount = walletInfo[0]['actual_amount'] - amount;
+                                let transporter = nodemailer.createTransport( {
+                                  service: 'Gmail',
+                                  auth: {
+                                    type: 'OAuth2',
+                                    user: "vuquangkhtn@gmail.com",
+                                    clientId: "347978303221-ae0esf1ucvud2m5g1k9csvt40bkhn2lr.apps.googleusercontent.com",
+                                    clientSecret: "pSU1AXrZRSSqayy4ulE8xiA6",
+                                    refreshToken: "1/KEih6qtYQoj4ADp49R1rMXQArsARt2dua6n2eQQ55lA"
+                                  },
+                                  tls: {
+                                      rejectUnauthorized: false
+                                  }
+                                });
+
+                                let newToken = speakeasy.totp({
+                                  secret: secret.base32,
+                                  encoding: 'base32'
+                                });
+                                // { token: '630618' } 
+                                let strContext = "<div>Dear Sir/Madam,</br> Your available amount has been changed in KCoin Wallet. Your new available amount is "+newAmount+"</div>";
+
+                                let mailOptions = {
+                                      from: 'vuquangkhtn@gmail.com', // sender address
+                                      to: email, // list of receivers
+                                      subject: 'KCoin Authentication - Verify your email address', // Subject line
+                                      text: 'You recieved message from ',
+                                      html: strContext, // plain text body
+                                  };
+
+                                transporter.sendMail(mailOptions,(error, info) => {
+                                  if (error) {
+                                    let data = {
+                                      'status': '500',
+                                      'data': {
+                                        'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+                                      }
+                                    };
+                                    res.send(data);
+                                  } else {
+                                    let data = {
+                                      'status': '200',
+                                      'data': {
+                                        'report': 'Đăng ký thành công...!'
+                                      }
+                                    };
+                                    res.send(data);
+                                  }
+                                });
+
                                 let returnData = {
                                   'status': '200',
                                   'data': {
