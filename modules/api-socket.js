@@ -201,7 +201,55 @@ ws.onmessage = function (response) {
                                                 };
                                                 let response = [];
                                                 logTransaction.saveLogTransaction(request, response);
-                                                // do nothing
+                                                // send mail report changed
+                                                let newAvailableAmount = actualAmountInfo[0]['total_actual_amount'] - sendAmountInfo[0]['total_send_amount'];
+                                                let newActualAmount = actualAmountInfo[0]['total_actual_amount'];
+                                                let transporter = nodemailer.createTransport(
+                                                {
+                                                  service: 'Gmail',
+                                                  auth: {
+                                                    type: 'OAuth2',
+                                                    user: "vuquangkhtn@gmail.com",
+                                                    clientId: "347978303221-ae0esf1ucvud2m5g1k9csvt40bkhn2lr.apps.googleusercontent.com",
+                                                    clientSecret: "pSU1AXrZRSSqayy4ulE8xiA6",
+                                                    refreshToken: "1/KEih6qtYQoj4ADp49R1rMXQArsARt2dua6n2eQQ55lA"
+                                                  },
+                                                  tls: {
+                                                    rejectUnauthorized: false
+                                                  }
+                                                }
+                                              );
+                                              // { token: '630618' } 
+                                              let strContext = "<div>Dear Sir/Madam,</br> Your amounts have been changed in KCoin Wallet. Your new available amount is " + newAvailableAmount + " and actual amount is "+newActualAmount+"</div>";
+
+                                              let mailOptions = {
+                                                from: 'vuquangkhtn@gmail.com', // sender address
+                                                to: email, // list of receivers
+                                                subject: 'KCoin Authentication - Verify your email address', // Subject line
+                                                text: 'You recieved message from ',
+                                                html: strContext, // plain text body
+                                              };
+
+                                              transporter.sendMail(mailOptions, (error, info) => {
+                                                  if (error) {
+                                                    let data = {
+                                                      'status': '500',
+                                                      'data': {
+                                                        'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+                                                      }
+                                                    };
+                                                    console.log(data);
+                                                  } else {
+                                                    let data = {
+                                                      'status': '200',
+                                                      'data': {
+                                                        'report': 'Đăng ký thành công...!'
+                                                      }
+                                                    };
+                                                    console.log(data);
+                                                  }
+                                                }
+                                              );
                                               }
                                             ).catch(function (error) {
                                                 let data = {
