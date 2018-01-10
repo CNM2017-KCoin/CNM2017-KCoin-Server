@@ -3,17 +3,29 @@ let dbHelper = require('../helpers/db-helper');
 exports.getInfo = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
-  console.log(params);
+  let password = params['password'] || '';
+  // console.log(params);
   dbHelper.dbLoadSql(
-    `SELECT id, address
+    `SELECT id, address, status
     FROM tb_login l
-    WHERE l.email = ?`,
+    WHERE l.email = ?
+    AND l.password = ?`,
     [
-      email
+      email,
+      password
     ]
   ).then(
     function (userInfo) {
-      console.log(userInfo);
+      if (userInfo.length < 1 || userInfo[0]['status'] == 0) {
+        let data = {
+          'status': '500',
+          'data': {
+            'error': 'Bạn không có quyền truy cập!'
+          }
+        };
+        res.send(data);
+      }
+      // console.log(userInfo);
       if (userInfo[0].id > 0) {
         dbHelper.dbLoadSql(
           `SELECT * 
@@ -31,7 +43,7 @@ exports.getInfo = function (req, res) {
               let data = {
                 'status': '200',
                 'data': {
-                  'address':userInfo[0].address,
+                  'address': userInfo[0].address,
                   'actual_amount': walletInfo[0].actual_amount,
                   'available_amount': walletInfo[0].available_amount,
                   'report': 'Lấy thông tin thành công!'
@@ -74,44 +86,76 @@ exports.getInfo = function (req, res) {
 exports.getTotalInfo = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
-  console.log(params);
+  let password = params['password'] || '';
+  // console.log(params);
   dbHelper.dbLoadSql(
-    `SELECT actual_amount, available_amount
-    FROM tb_login l,tb_wallet w
-    WHERE l.id = w.user_id`
+    `SELECT id, address, status
+    FROM tb_login l
+    WHERE l.email = ?
+    AND l.password = ?`,
+    [
+      email,
+      password
+    ]
   ).then(
-    function (usersList) {
-      console.log(usersList);
-      let total_actual_amount = 0;
-      let total_available_amount = 0;
-      if (usersList.length > 0) {
-        for (let i = usersList.length - 1; i >= 0; i--) {
-          total_actual_amount += usersList[i].actual_amount;
-          total_available_amount += usersList[i].available_amount;
-        }
-
+    function (userInfo) {
+      if (userInfo.length < 1 || userInfo[0]['status'] == 0) {
         let data = {
-          'status': '200',
-          'data': {   
-            'total_users': usersList.length,
-            'total_actual_amount': total_actual_amount,
-            'total_available_amount': total_available_amount,
-            'report': 'Lấy thông tin thành công!'
-          }
-        };
-        res.send(data);
-      } else {
-        let data = {
-          'status': '200',
+          'status': '500',
           'data': {
-            'total_users': 0,
-            'total_actual_amount': 0,
-            'total_available_amount': 0,
-            'report': 'Giá trị trả về trống!'
+            'error': 'Bạn không có quyền truy cập!'
           }
         };
         res.send(data);
       }
+      dbHelper.dbLoadSql(
+        `SELECT actual_amount, available_amount
+        FROM tb_login l,tb_wallet w
+        WHERE l.id = w.user_id`
+      ).then(
+        function (usersList) {
+          console.log(usersList);
+          let total_actual_amount = 0;
+          let total_available_amount = 0;
+          if (usersList.length > 0) {
+            for (let i = usersList.length - 1; i >= 0; i--) {
+              total_actual_amount += usersList[i].actual_amount;
+              total_available_amount += usersList[i].available_amount;
+            }
+
+            let data = {
+              'status': '200',
+              'data': {
+                'total_users': usersList.length,
+                'total_actual_amount': total_actual_amount,
+                'total_available_amount': total_available_amount,
+                'report': 'Lấy thông tin thành công!'
+              }
+            };
+            res.send(data);
+          } else {
+            let data = {
+              'status': '200',
+              'data': {
+                'total_users': 0,
+                'total_actual_amount': 0,
+                'total_available_amount': 0,
+                'report': 'Giá trị trả về trống!'
+              }
+            };
+            res.send(data);
+          }
+        }
+      ).catch(function (error) {
+          let data = {
+            'status': '500',
+            'data': {
+              'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+            }
+          };
+          res.send(data);
+        }
+      );
     }
   ).catch(function (error) {
       let data = {
@@ -129,39 +173,73 @@ exports.getTotalInfo = function (req, res) {
 exports.getUsers = function (req, res) {
   let params = req.body || {};
   let offset = parseInt(params['offset']);
-  console.log(offset);
+  let email = params['email'] || '';
+  let password = params['password'] || '';
+  // console.log(params);
   dbHelper.dbLoadSql(
-    `SELECT email, address, actual_amount, available_amount
-    FROM tb_login l,tb_wallet w
-    WHERE l.id = w.user_id
-    LIMIT 10 OFFSET ?`,
+    `SELECT id, address, status
+    FROM tb_login l
+    WHERE l.email = ?
+    AND l.password = ?`,
     [
-      offset*10
+      email,
+      password
     ]
   ).then(
-    function (usersList) {
-      console.log(usersList);
-      let total_actual_amount = 0;
-      let total_available_amount = 0;
-      if (usersList.length > 0) {
-          let data = {
-          'status': '200',
-          'data': {   
-            'users': usersList,
-            'report': 'Lấy thông tin thành công!'
-          }
-        };
-        res.send(data);
-      } else {
+    function (userInfo) {
+      if (userInfo.length < 1 || userInfo[0]['status'] == 0) {
         let data = {
-          'status': '200',
+          'status': '500',
           'data': {
-            'users': [],
-            'report': 'Giá trị trả về trống!'
+            'error': 'Bạn không có quyền truy cập!'
           }
         };
         res.send(data);
       }
+      // console.log(offset);
+      dbHelper.dbLoadSql(
+        `SELECT email, address, actual_amount, available_amount
+        FROM tb_login l,tb_wallet w
+        WHERE l.id = w.user_id
+        LIMIT 10 OFFSET ?`,
+        [
+          offset * 10
+        ]
+      ).then(
+        function (usersList) {
+          console.log(usersList);
+          let total_actual_amount = 0;
+          let total_available_amount = 0;
+          if (usersList.length > 0) {
+            let data = {
+              'status': '200',
+              'data': {
+                'users': usersList,
+                'report': 'Lấy thông tin thành công!'
+              }
+            };
+            res.send(data);
+          } else {
+            let data = {
+              'status': '200',
+              'data': {
+                'users': [],
+                'report': 'Giá trị trả về trống!'
+              }
+            };
+            res.send(data);
+          }
+        }
+      ).catch(function (error) {
+          let data = {
+            'status': '500',
+            'data': {
+              'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+            }
+          };
+          res.send(data);
+        }
+      );
     }
   ).catch(function (error) {
       let data = {
@@ -193,7 +271,7 @@ exports.findAddress = function (req, res) {
         let data = {
           'status': '200',
           'data': {
-            'address':userInfo[0]['address'],
+            'address': userInfo[0]['address'],
             'report': 'Tìm kiếm thành công!'
           }
         };
@@ -242,13 +320,13 @@ exports.findRecentEmailList = function (req, res) {
             userInfo[0]['id']
           ]
         ).then(
-          function (emailListInfo) { 
+          function (emailListInfo) {
             console.log(11111111);
-            if(emailListInfo.length > 0) {
+            if (emailListInfo.length > 0) {
               let data = {
                 'status': '200',
                 'data': {
-                  'emailList':emailListInfo,
+                  'emailList': emailListInfo,
                   'report': 'Lấy danh sách email thành công!'
                 }
               };
@@ -257,7 +335,7 @@ exports.findRecentEmailList = function (req, res) {
               let data = {
                 'status': '200',
                 'data': {
-                  'emailList':[],
+                  'emailList': [],
                   'report': 'Không có email giao dịch gần đây!'
                 }
               };

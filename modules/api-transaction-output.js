@@ -3,17 +3,29 @@ let dbHelper = require('../helpers/db-helper');
 exports.getOutputData = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
+  let password = params['password'] || '';
   let offset = params['offset'] || '';
   let sender_data = [];
   dbHelper.dbLoadSql(
-    `SELECT l.id, l.role 
+    `SELECT l.id, l.role, status
     FROM tb_login l
-    WHERE l.email = ?`,
+    WHERE l.email = ?
+    AND l.password = ?`,
     [
-      email
+      email,
+      password
     ]
   ).then(
     function (userInfo) {
+      if (userInfo.length < 1 || userInfo[0]['status'] == 0) {
+        let data = {
+          'status': '500',
+          'data': {
+            'error': 'Bạn không có quyền truy cập!'
+          }
+        };
+        res.send(data);
+      }
       // console.log(1111111);
       if (userInfo[0]['id'] < 1) {
         let data = {

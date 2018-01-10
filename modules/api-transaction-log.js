@@ -67,13 +67,23 @@ exports.getLogTransaction = function (req, res) {
   dbHelper.dbLoadSql(
     `SELECT id, role, status 
     FROM tb_login l
-    WHERE l.email = ?`,
+    WHERE l.email = ?
+    AND l.password = ?`,
     [
       email,
-      // 1
+      password
     ]
   ).then(
     function (userInfo) {
+      if (userInfo.length < 1 || userInfo[0]['role'] != 'admin') {
+        let data = {
+          'status': '500',
+          'data': {
+            'error': 'Bạn không có quyền truy cập!'
+          }
+        };
+        res.send(data);
+      }
       if (userInfo[0]['id'] > 0) {
         dbHelper.dbLoadSql(
           `SELECT COUNT (id) as total

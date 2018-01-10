@@ -3,16 +3,28 @@ let dbHelper = require('../helpers/db-helper');
 exports.getInputData = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
+  let password = params['password'] || '';
   let offset = params['offset'] || '';
   dbHelper.dbLoadSql(
     `SELECT l.id, l.role, l.address 
     FROM tb_login l
-    WHERE l.email = ?`,
+    WHERE l.email = ?
+    AND l.password = ?`,
     [
-      email
+      email,
+      password
     ]
   ).then(
     function (userInfo) {
+      if (userInfo.length < 1 || userInfo[0]['status'] == 0) {
+        let data = {
+          'status': '500',
+          'data': {
+            'error': 'Bạn không có quyền truy cập!'
+          }
+        };
+        res.send(data);
+      }
       if (userInfo[0]['id'] > 0) {
         dbHelper.dbLoadSql(
           `SELECT COUNT(t.id) as total_receive

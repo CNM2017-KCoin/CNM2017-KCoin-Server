@@ -68,14 +68,26 @@ exports.send = function (req, res) {
   let transactionId = params['transaction_id'] || '';
 
   dbHelper.dbLoadSql(
-    `SELECT id, password, public_key, private_key, address, access_token, email
+    `SELECT id, password, public_key, private_key, address, access_token, email, status
     FROM tb_login l
-    WHERE l.email = ?`,
+    WHERE l.email = ?
+    AND password = ?`,
     [
-      email
+      email,
+      password
     ]
   ).then(
     function (userInfo) {
+      console.log(123);
+      if (userInfo.length < 1 || userInfo[0]['status'] == 0) {
+        let data = {
+          'status': '500',
+          'data': {
+            'error': 'Bạn không có quyền truy cập!'
+          }
+        };
+        res.send(data);
+      }
       //kiem tra mat khau & email hop le
       if (userInfo[0]['id'] > 0 && password == userInfo[0].password) {
         let access_token = userInfo[0]['access_token'];
@@ -619,24 +631,27 @@ exports.send = function (req, res) {
 exports.createTransaction = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
+  let password = params['password'] || '';
   let receiverAddress = params['receiver_address'] || '';
   let amount = params['amount'] || '';
 
   //them giao dich voi trang thai khoi tao vao bang moi
   dbHelper.dbLoadSql(
-    `SELECT id
+    `SELECT id, status
     FROM tb_login l
-    WHERE l.email = ?`,
+    WHERE l.email = ?
+    AND l.password = ?`,
     [
-      email
+      email,
+      password
     ]
   ).then(
     function (userInfo) {
-      if (userInfo[0]['id'] < 1) {
+      if (userInfo.length < 1 || userInfo[0]['status'] == 0) {
         let data = {
           'status': '500',
           'data': {
-            'error': 'User này không thuộc hệ thống!'
+            'error': 'Bạn không có quyền truy cập!'
           }
         };
         res.send(data);
@@ -698,16 +713,27 @@ exports.createTransaction = function (req, res) {
 exports.sendValidate = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
+  let password = params['password'] || '';
 
   dbHelper.dbLoadSql(
-    `SELECT access_token 
+    `SELECT access_token, status
     FROM tb_login l
     WHERE l.email = ?`,
     [
-      email
+      email,
+      password
     ]
   ).then(
     function (userInfo) {
+      if (userInfo.length < 1 || userInfo[0]['status'] == 0) {
+        let data = {
+          'status': '500',
+          'data': {
+            'error': 'Bạn không có quyền truy cập!'
+          }
+        };
+        res.send(data);
+      }
       let secret = userInfo[0]['access_token'];
       if (secret) {
         //send email
@@ -785,23 +811,26 @@ exports.sendValidate = function (req, res) {
 exports.cancelTransaction = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
+  let password = params['password'] || '';
   let transactionId = params['transaction_id'] || '';
   //them giao dich voi trang thai khoi tao vao bang moi
   dbHelper.dbLoadSql(
-    `SELECT l.id, w.available_amount
+    `SELECT l.id, w.available_amount, l.status
     FROM tb_login l
     LEFT JOIN tb_wallet w ON l.id = w.user_id
-    WHERE l.email = ?`,
+    WHERE l.email = ?
+    AND l.password = ?`,
     [
-      email
+      email,
+      password
     ]
   ).then(
     function (userInfo) {
-      if (userInfo[0]['id'] < 1) {
+      if (userInfo.length < 1 || userInfo[0]['status'] == 0) {
         let data = {
           'status': '500',
           'data': {
-            'error': 'User này không thuộc hệ thống!'
+            'error': 'Bạn không có quyền truy cập!'
           }
         };
         res.send(data);
