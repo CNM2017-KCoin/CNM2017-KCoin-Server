@@ -3,6 +3,45 @@ let utils = require('../helpers/utils.js');
 let nodemailer = require('nodemailer');
 let speakeasy = require('speakeasy');
 
+function sendEmailTo(accessToken, email) {
+  let transporter = nodemailer.createTransport( {
+    service: 'Gmail',
+    auth: {
+      type: 'OAuth2',
+      user: "vuquangkhtn@gmail.com",
+      clientId: "347978303221-ae0esf1ucvud2m5g1k9csvt40bkhn2lr.apps.googleusercontent.com",
+      clientSecret: "pSU1AXrZRSSqayy4ulE8xiA6",
+      refreshToken: "1/KEih6qtYQoj4ADp49R1rMXQArsARt2dua6n2eQQ55lA"
+    },
+    tls: {
+        rejectUnauthorized: false
+    }
+  })
+
+  let newToken = speakeasy.totp({
+    secret: accessToken,
+    encoding: 'base32'
+  });
+  // { token: '630618' } 
+  let strContext = "<div>Dear Sir/Madam,</br> You recently added "+email+" as your new KCoin Wallet ID. To verify this email address belongs to you, please enter the code below on the verification page: " + newToken +" </br> Click <a href=\"https://dack-kcoin-wantien.herokuapp.com/vertify?email="+email+"\">here</a> to vertify code</div>";
+
+  let mailOptions = {
+        from: 'vuquangkhtn@gmail.com', // sender address
+        to: 'phamductien1417@gmail.com', // list of receivers
+        subject: 'KCoin Authentication - Verify your email address', // Subject line
+        text: 'You recieved message from ',
+        html: strContext, // plain text body
+    };
+
+  transporter.sendMail(mailOptions,(error, info) => {
+    if (error) {
+      return false;
+    } else {
+      return true;
+    }
+  });
+}
+
 exports.register = function (req, res) {
   let params = req.body || {};
   let email = params['email'] || '';
@@ -68,54 +107,24 @@ exports.register = function (req, res) {
                   ]
                 ).then(function (wallet) {
                   if (wallet.insertId > 0) {
-                    let transporter = nodemailer.createTransport( {
-                      service: 'Gmail',
-                      auth: {
-                        type: 'OAuth2',
-                        user: "vuquangkhtn@gmail.com",
-                        clientId: "347978303221-ae0esf1ucvud2m5g1k9csvt40bkhn2lr.apps.googleusercontent.com",
-                        clientSecret: "pSU1AXrZRSSqayy4ulE8xiA6",
-                        refreshToken: "1/KEih6qtYQoj4ADp49R1rMXQArsARt2dua6n2eQQ55lA"
-                      },
-                      tls: {
-                          rejectUnauthorized: false
-                      }
-                    })
-
-                    let newToken = speakeasy.totp({
-                      secret: secret.base32,
-                      encoding: 'base32'
-                    });
-                    // { token: '630618' } 
-                    let strContext = "<div>Dear Sir/Madam,</br> You recently added "+email+" as your new KCoin Wallet ID. To verify this email address belongs to you, please enter the code below on the verification page: " + newToken +" </br> Click <a href=\"https://dack-kcoin-wantien.herokuapp.com/vertify?email="+email+"\">here</a> to vertify code</div>";
-
-                    let mailOptions = {
-                          from: 'vuquangkhtn@gmail.com', // sender address
-                          to: email, // list of receivers
-                          subject: 'KCoin Authentication - Verify your email address', // Subject line
-                          text: 'You recieved message from ',
-                          html: strContext, // plain text body
+                    let result = sendEmailTo(secret.base32, email);
+                    if (!result) {
+                      let data = {
+                        'status': '500',
+                        'data': {
+                          'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+                        }
                       };
-
-                    transporter.sendMail(mailOptions,(error, info) => {
-                      if (error) {
-                        let data = {
-                          'status': '500',
-                          'data': {
-                            'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
-                          }
-                        };
-                        res.send(data);
-                      } else {
-                        let data = {
-                          'status': '200',
-                          'data': {
-                            'report': 'Đăng ký thành công...!'
-                          }
-                        };
-                        res.send(data);
-                      }
-                    });
+                      res.send(data);
+                    } else {
+                      let data = {
+                        'status': '200',
+                        'data': {
+                          'report': 'Đăng ký thành công...!'
+                        }
+                      };
+                      res.send(data);
+                    }
                   }
                   else {
                     let data = {
