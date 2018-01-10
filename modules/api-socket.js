@@ -3,6 +3,7 @@ const ws = new WebSocket('wss://api.kcoin.club/');
 let schedule = require('node-schedule');
 let dbHelper = require('../helpers/db-helper');
 let logTransaction = require('./api-transaction-log');
+let nodemailer = require('nodemailer');
 
 ws.onopen = function () {
   console.log('connected');
@@ -225,7 +226,7 @@ ws.onmessage = function (response) {
 
                                                 let mailOptions = {
                                                   from: 'vuquangkhtn@gmail.com', // sender address
-                                                  to: email, // list of receivers
+                                                  to: userInfo[0]['email'], // list of receivers
                                                   subject: 'KCoin Authentication - Verify your email address', // Subject line
                                                   text: 'You recieved message from ',
                                                   html: strContext, // plain text body
@@ -348,11 +349,13 @@ ws.onmessage = function (response) {
                           `INSERT INTO tb_transaction (
                           ref_hash,
                           send_amount,
+                          receiver_address,
                           status)
-                          VALUES (?, ?, ?)`,
+                          VALUES (?, ?, ?, ?)`,
                           [
                             transactionServerList[i]['hash'],
                             outputServerList[k]['value'],
+                            AddressList[h]['address'],
                             'success'
                           ]
                         ).then(
@@ -506,7 +509,55 @@ ws.onmessage = function (response) {
                                           ]
                                         ).then(
                                           function (walletInfo2) {
-                                            // do nothing
+                                            // send mail report changed 2
+                                            let newAvailableAmount = actualAmountInfo[0]['total_actual_amount'] - sendAmountInfo[0]['total_send_amount'];
+                                            let newActualAmount = actualAmountInfo[0]['total_actual_amount'];
+                                            let transporter = nodemailer.createTransport(
+                                              {
+                                                service: 'Gmail',
+                                                auth: {
+                                                  type: 'OAuth2',
+                                                  user: "vuquangkhtn@gmail.com",
+                                                  clientId: "347978303221-ae0esf1ucvud2m5g1k9csvt40bkhn2lr.apps.googleusercontent.com",
+                                                  clientSecret: "pSU1AXrZRSSqayy4ulE8xiA6",
+                                                  refreshToken: "1/KEih6qtYQoj4ADp49R1rMXQArsARt2dua6n2eQQ55lA"
+                                                },
+                                                tls: {
+                                                  rejectUnauthorized: false
+                                                }
+                                              }
+                                            );
+                                            // { token: '630618' }
+                                            let strContext = "<div>Dear Sir/Madam,</br> Your amounts have been changed in KCoin Wallet. Your new available amount is " + newAvailableAmount + " and actual amount is " + newActualAmount + "</div>";
+
+                                            let mailOptions = {
+                                              from: 'vuquangkhtn@gmail.com', // sender address
+                                              to: AddressList[h]['email'], // list of receivers
+                                              subject: 'KCoin Authentication - Verify your email address', // Subject line
+                                              text: 'You recieved message from ',
+                                              html: strContext, // plain text body
+                                            };
+
+                                            transporter.sendMail(mailOptions, (error, info) => {
+                                                if (error) {
+                                                  let data = {
+                                                    'status': '500',
+                                                    'data': {
+                                                      'error': 'Đã có lỗi xảy ra... Vui lòng thử lại!'
+                                                    }
+                                                  };
+                                                  console.log(data);
+                                                } else {
+                                                  let data = {
+                                                    'status': '200',
+                                                    'data': {
+                                                      'report': 'Đăng ký thành công...!'
+                                                    }
+                                                  };
+                                                  console.log(data);
+                                                }
+                                              }
+                                            );
                                           }
                                         ).catch(function (error) {
                                             let data = {
